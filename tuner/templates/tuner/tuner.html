@@ -1,0 +1,81 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Гитарный тюнер онлайн</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Онлайн-тюнер для настройки гитары через микрофон. Стандартный строй E A D G B E.">
+
+  <link rel="stylesheet" href="{% static 'tuner/css/tuner.css' %}">
+</head>
+<body>
+  <main class="tuner-page">
+    <section class="tuner-card">
+      <div class="tuner-top">
+        <a class="back-link" href="/">← На главную</a>
+        <span class="status-pill" id="statusPill">Микрофон выключен</span>
+      </div>
+
+      <header class="tuner-header">
+        <p class="eyebrow">Онлайн-инструмент</p>
+        <h1>Гитарный тюнер</h1>
+        <p class="lead">
+          Разреши доступ к микрофону, сыграй открытую струну и подстрой её по индикатору.
+          Стандартный строй: E2 A2 D3 G3 B3 E4.
+        </p>
+      </header>
+
+      <section class="tuner-display" aria-live="polite">
+        <div class="note-row">
+          <div class="detected-note" id="detectedNote">—</div>
+          <div class="target-note" id="targetNote">Целевая струна: —</div>
+        </div>
+
+        <div class="frequency-row">
+          <span id="frequencyValue">0.00 Hz</span>
+          <span id="centsValue">0 cents</span>
+        </div>
+
+        <div class="meter" aria-label="Индикатор точности настройки">
+          <div class="meter-scale">
+            <span>-50</span>
+            <span>-25</span>
+            <span>0</span>
+            <span>+25</span>
+            <span>+50</span>
+          </div>
+          <div class="meter-track">
+            <div class="meter-zone flat"></div>
+            <div class="meter-zone ok"></div>
+            <div class="meter-zone sharp"></div>
+            <div class="needle" id="needle"></div>
+          </div>
+          <div class="hint" id="tuneHint">Нажми «Включить тюнер»</div>
+        </div>
+      </section>
+
+      <section class="strings">
+        <button class="string-button" data-note="E2" data-frequency="82.41">6-я струна · E2 · 82.41 Hz</button>
+        <button class="string-button" data-note="A2" data-frequency="110.00">5-я струна · A2 · 110.00 Hz</button>
+        <button class="string-button" data-note="D3" data-frequency="146.83">4-я струна · D3 · 146.83 Hz</button>
+        <button class="string-button" data-note="G3" data-frequency="196.00">3-я струна · G3 · 196.00 Hz</button>
+        <button class="string-button" data-note="B3" data-frequency="246.94">2-я струна · B3 · 246.94 Hz</button>
+        <button class="string-button" data-note="E4" data-frequency="329.63">1-я струна · E4 · 329.63 Hz</button>
+      </section>
+
+      <div class="actions">
+        <button class="primary-button" id="startButton">Включить тюнер</button>
+        <button class="secondary-button" id="stopButton" disabled>Выключить</button>
+      </div>
+
+      <p class="microcopy">
+        Для точности настрой одну струну за раз, не держи телефон слишком близко к деке
+        и избегай фонового шума.
+      </p>
+    </section>
+  </main>
+
+  <script src="{% static 'tuner/js/tuner.js' %}"></script>
+</body>
+</html>

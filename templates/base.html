@@ -1,0 +1,34 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>{% block title %}Школа игры на гитаре{% endblock %}</title>
+    <meta name="description" content="{% block description %}Школа игры на гитаре: уроки, курсы, настройка инструмента и практика для начинающих.{% endblock %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% block extra_meta %}{% endblock %}
+
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    {% include "header.html" %}
+
+    <main class="site-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "footer.html" %}
+
+    <button class="scroll-top" type="button" aria-label="Наверх" data-scroll-top>
+        ↑
+    </button>
+
+    <script src="{% static 'js/theme.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Школа игры на гитаре{% endblock %}
+{% block description %}Школа игры на гитаре: настройка инструмента, уроки для начинающих, аккорды, ритм и практика песен.{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <div class="hero-inner reveal">
+            <span class="hero-kicker">Онлайн и офлайн обучение</span>
+            <h1>Школа игры на гитаре</h1>
+            <p>
+                Настрой инструмент, поставь руки, выучи первые аккорды
+                и начни играть осознанно — без хаоса и случайных упражнений.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="/tuner/">Открыть тюнер</a>
+                <a class="btn btn-outline" href="#program">Программа</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="program">
+    <div class="container">
+        <div class="section-title reveal">
+            <span class="section-kicker">Методика</span>
+            <h2>Маршрут ученика</h2>
+            <p>
+                Сначала звук и настройка, потом техника, ритм, аккорды,
+                песни и музыкальное мышление.
+            </p>
+        </div>
+
+        <div class="grid-3">
+            <article class="feature-card reveal">
+                <span>01</span>
+                <h3>Настройка</h3>
+                <p>
+                    Учимся слышать высоту звука, пользоваться тюнером
+                    и держать инструмент в рабочем состоянии.
+                </p>
+            </article>
+
+            <article class="feature-card reveal">
+                <span>02</span>
+                <h3>Ритм и аккорды</h3>
+                <p>
+                    Ставим руки, разбираем базовые аккорды, бой,
+                    перебор и смену позиций без лишнего напряжения.
+                </p>
+            </article>
+
+            <article class="feature-card reveal">
+                <span>03</span>
+                <h3>Песни</h3>
+                <p>
+                    Собираем технику в практику: играем песни,
+                    работаем над динамикой, формой и чистотой звука.
+                </p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="band-section" id="steps">
+    <div class="container">
+        <div class="section-title reveal">
+            <span class="section-kicker">Программа</span>
+            <h2>Что будет внутри</h2>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item reveal">
+                <div class="timeline-num">1</div>
+                <div class="timeline-content">
+                    <h3>Первый звук</h3>
+                    <p>Настройка гитары, посадка, медиатор или пальцы, первые простые упражнения.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item reveal">
+                <div class="timeline-num">2</div>
+                <div class="timeline-content">
+                    <h3>Аккордовая база</h3>
+                    <p>Открытые аккорды, смена позиций, ритмический рисунок и контроль темпа.</p>
+                </div>
+            </div>
+
+            <div class="timeline-item reveal">
+                <div class="timeline-num">3</div>
+                <div class="timeline-content">
+                    <h3>Живая практика</h3>
+                    <p>Песни, разбор ошибок, развитие слуха и уверенная игра под метроном.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -866,3 +866,51 @@
     height: 28px;
   }
 }
+
+/* Tuner rounded corners refinement */
+.tuner-card,
+.vu-meter,
+.string-display,
+.vu-window,
+.tune-led-strip,
+.fretboard,
+.string-readout {
+  border-radius: var(--radius-lg, 22px);
+}
+
+.tune-led-strip span {
+  border-radius: 7px;
+}
+
+.primary-button,
+.secondary-button,
+.string-button,
+.status-pill,
+.fret-string span,
+.vu-lamps span {
+  border-radius: var(--radius-pill, 999px);
+}
+
+/* Radius correction */
+.tuner-card,
+.vu-meter,
+.string-display,
+.vu-window,
+.tune-led-strip,
+.fretboard,
+.string-readout {
+  border-radius: 14px !important;
+}
+
+.primary-button,
+.secondary-button,
+.string-button,
+.status-pill,
+.fret-string span,
+.vu-lamps span {
+  border-radius: 10px !important;
+}
+
+.tune-led-strip span {
+  border-radius: 4px !important;
+}

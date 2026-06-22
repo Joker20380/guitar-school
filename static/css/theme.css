@@ -675,3 +675,275 @@ h5 {
         text-align: center;
     }
 }
+
+/* Global rounded corners polish */
+:root {
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
+  --radius-pill: 999px;
+}
+
+.site-header,
+.header-inner,
+.mobile-menu,
+.dropdown-menu,
+.hero-card,
+.section-card,
+.info-card,
+.feature-card,
+.service-card,
+.tuner-card,
+.vu-meter,
+.string-display,
+.vu-window,
+.tune-led-strip,
+.fretboard,
+.course-card,
+.course-main,
+.apply-card,
+.empty-courses,
+.course-message,
+.lesson-card,
+.homework-box,
+.lesson-video,
+.course-progress {
+  border-radius: var(--radius-lg);
+}
+
+.course-card,
+.course-main,
+.apply-card,
+.tuner-card {
+  overflow: hidden;
+}
+
+.primary-button,
+.secondary-button,
+.course-link,
+.course-submit,
+.string-button,
+.lesson-progress-button,
+.nav-cta,
+.hero-cta,
+button,
+input,
+select,
+textarea {
+  border-radius: var(--radius-pill);
+}
+
+textarea {
+  border-radius: var(--radius-md);
+}
+
+.course-form input,
+.course-form select,
+.course-form textarea {
+  border-radius: var(--radius-md);
+}
+
+.lesson-card {
+  border-radius: var(--radius-md);
+}
+
+.course-card-top span,
+.course-card-top strong,
+.course-badges span,
+.course-meta span,
+.status-pill,
+.fret-string span,
+.vu-lamps span {
+  border-radius: var(--radius-pill);
+}
+
+.lesson-video iframe {
+  border-radius: inherit;
+}
+
+@media (max-width: 680px) {
+  .tuner-card,
+  .course-card,
+  .course-main,
+  .apply-card {
+    border-radius: var(--radius-md);
+  }
+}
+
+/* Radius correction: softer, not pill-shaped */
+:root {
+  --radius-xs: 4px;
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 12px;
+}
+
+/* Main navigation links/buttons */
+.site-header a,
+.site-header button,
+.header-inner a,
+.header-inner button,
+.main-menu a,
+.main-menu button,
+.nav-menu a,
+.nav-menu button,
+.site-nav a,
+.site-nav button,
+.header-nav a,
+.header-nav button,
+.nav-link,
+.nav-cta,
+.mobile-menu a,
+.mobile-menu button {
+  border-radius: 10px !important;
+}
+
+/* General softer radius */
+.tuner-card,
+.course-card,
+.course-main,
+.apply-card,
+.lesson-card,
+.hero-card,
+.section-card,
+.info-card,
+.feature-card,
+.service-card,
+.vu-meter,
+.string-display,
+.vu-window,
+.fretboard,
+.lesson-video,
+.homework-box,
+.empty-courses {
+  border-radius: 14px !important;
+}
+
+input,
+select,
+textarea,
+button,
+.primary-button,
+.secondary-button,
+.course-link,
+.course-submit,
+.string-button,
+.lesson-progress-button {
+  border-radius: 10px !important;
+}
+
+.status-pill,
+.course-badges span,
+.course-meta span,
+.course-card-top span,
+.course-card-top strong,
+.fret-string span,
+.vu-lamps span {
+  border-radius: 9px !important;
+}
+
+.tune-led-strip span {
+  border-radius: 4px !important;
+}
+
+/* Homepage and footer radius correction */
+.footer,
+.site-footer,
+.footer-area,
+.footer-card,
+.footer-box,
+.footer-widget,
+.footer-contact,
+.footer-social a,
+.footer-links a,
+.footer-menu a,
+.footer-bottom,
+.home-section,
+.home-card,
+.home-feature,
+.home-service,
+.home-course,
+.home-cta,
+.hero,
+.hero-content,
+.hero-panel,
+.hero-card,
+.hero-actions a,
+.hero-actions button,
+.hero-buttons a,
+.hero-buttons button,
+.cta-section,
+.cta-card,
+.about-card,
+.about-image,
+.features-grid article,
+.services-grid article,
+.contact-card,
+.news-card,
+.blog-card {
+  border-radius: 14px !important;
+}
+
+/* Homepage and footer buttons/links */
+.footer a,
+.site-footer a,
+.footer-area a,
+.home-page a,
+.home-page button,
+.hero a,
+.hero button,
+.hero-actions a,
+.hero-actions button,
+.hero-buttons a,
+.hero-buttons button,
+.cta-section a,
+.cta-section button,
+.btn,
+.button,
+.theme-btn,
+.boxed-btn,
+.primary-button,
+.secondary-button {
+  border-radius: 10px !important;
+}
+
+/* Round media slightly, not too much */
+.hero img,
+.home-section img,
+.about-image img,
+.news-card img,
+.blog-card img,
+.service-card img,
+.course-card img,
+.footer img {
+  border-radius: 14px !important;
+}
+
+/* Small badges and pills */
+.badge,
+.tag,
+.label,
+.kicker,
+.category,
+.footer-social a,
+.social-link,
+.social-links a {
+  border-radius: 9px !important;
+}
+
+/* Forms on homepage/footer */
+.home-page input,
+.home-page select,
+.home-page textarea,
+.footer input,
+.footer select,
+.footer textarea,
+.site-footer input,
+.site-footer select,
+.site-footer textarea {
+  border-radius: 10px !important;
+}

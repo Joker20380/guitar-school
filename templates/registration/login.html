@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Вход ученика{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="course-detail-page">
+  <div class="container">
+    <div class="course-detail-layout">
+      <article class="course-main">
+        <div class="course-badges">
+          <span>Student login</span>
+        </div>
+
+        <h1>Вход ученика</h1>
+        <p class="course-lead">
+          Войдите, чтобы открыть свои курсы, уроки и прогресс обучения.
+        </p>
+      </article>
+
+      <aside class="course-sidebar">
+        <div class="apply-card">
+          <p class="section-kicker">Login</p>
+          <h2>Аккаунт</h2>
+
+          <form method="post" class="course-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+              <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                  <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+              </label>
+            {% endfor %}
+
+            <button class="course-submit" type="submit">
+              Войти
+            </button>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

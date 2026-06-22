@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Курсы гитары{% endblock %}
+{% block description %}Курсы игры на гитаре для новичков и продолжающих: онлайн, офлайн и смешанный формат.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="courses-page">
+  <div class="container">
+    <header class="courses-hero">
+      <p class="section-kicker">Guitar courses</p>
+      <h1>Курсы игры на гитаре</h1>
+      <p>
+        Выберите направление: первые аккорды, уверенный аккомпанемент,
+        техника, ритм, разбор песен или индивидуальные онлайн-уроки.
+      </p>
+    </header>
+
+    {% if courses %}
+      <div class="course-grid">
+        {% for course in courses %}
+          <article class="course-card">
+            <div class="course-card-top">
+              <span>{{ course.get_level_display }}</span>
+              <strong>{{ course.get_format_display }}</strong>
+            </div>
+
+            <h2>{{ course.title }}</h2>
+            <p>{{ course.short_description }}</p>
+
+            <div class="course-meta">
+              {% if course.duration %}
+                <span>{{ course.duration }}</span>
+              {% endif %}
+              {% if course.price %}
+                <span>{{ course.price }}</span>
+              {% endif %}
+            </div>
+
+            <a class="course-link" href="{{ course.get_absolute_url }}">
+              Подробнее
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-courses">
+        <h2>Курсы скоро появятся</h2>
+        <p>Добавьте первый курс в админке Django.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

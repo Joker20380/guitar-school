@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pages',
     'tuner',
+    "courses",
 ]
 
 MIDDLEWARE = [
@@ -176,3 +177,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/courses/my/"
+LOGOUT_REDIRECT_URL = "/"
+
+# Phone number validation
+PHONENUMBER_DEFAULT_REGION = "BE"
+PHONENUMBER_DB_FORMAT = "E164"

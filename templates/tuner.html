@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Гитарный тюнер онлайн{% endblock %}
+{% block description %}Онлайн-тюнер для настройки гитары через микрофон. Стандартный строй E2 A2 D3 G3 B3 E4.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tuner/css/tuner.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tuner-page">
+  <div class="tuner-card">
+    <div class="tuner-top">
+      <a class="back-link" href="/">← На главную</a>
+      <span class="status-pill" id="statusPill">Микрофон выключен</span>
+    </div>
+
+    <header class="tuner-header">
+      <p class="eyebrow">Vintage acoustic tuner</p>
+      <h1>Гитарный тюнер</h1>
+      <p class="lead">
+        Сыграй открытую струну и держи стрелку по центру. Зелёный центр означает, что струна настроена.
+      </p>
+    </header>
+
+    <div class="actions actions-top">
+      <button class="primary-button" id="startButton">Включить тюнер</button>
+      <button class="secondary-button" id="stopButton" disabled>Выключить</button>
+    </div>
+
+    <section class="instrument-panel" aria-label="Индикаторы настройки">
+      <article class="vu-meter vu-meter-main">
+        <div class="vu-labels">
+          <span>FLAT</span>
+          <strong>TUNE</strong>
+          <span>SHARP</span>
+        </div>
+
+        <div class="vu-window light-face main-face">
+          <div class="vu-backlight"></div>
+          <div class="vu-glass"></div>
+
+          <div class="vu-marks">
+            <i style="--r:-44deg"></i>
+            <i style="--r:-34deg"></i>
+            <i style="--r:-24deg"></i>
+            <i style="--r:-14deg"></i>
+            <i style="--r:-6deg"></i>
+            <i class="center" style="--r:0deg"></i>
+            <i style="--r:6deg"></i>
+            <i style="--r:14deg"></i>
+            <i style="--r:24deg"></i>
+            <i style="--r:34deg"></i>
+            <i style="--r:44deg"></i>
+          </div>
+
+          <div class="vu-numbers tune-numbers">
+            <span>-50</span>
+            <span>-25</span>
+            <span>0</span>
+            <span>+25</span>
+            <span>+50</span>
+          </div>
+
+          <div class="vu-scale-caption">CENT</div>
+          <div class="vu-needle" id="tuneNeedle"></div>
+          <div class="vu-pivot"></div>
+        </div>
+
+        <div class="tune-led-strip" id="tuneLedStrip" aria-label="Индикатор точности настройки">
+          <span data-pos="-12"></span>
+          <span data-pos="-11"></span>
+          <span data-pos="-10"></span>
+          <span data-pos="-9"></span>
+          <span data-pos="-8"></span>
+          <span data-pos="-7"></span>
+          <span data-pos="-6"></span>
+          <span data-pos="-5"></span>
+          <span data-pos="-4"></span>
+          <span data-pos="-3"></span>
+          <span data-pos="-2"></span>
+          <span data-pos="-1"></span>
+          <span data-pos="0" class="center"></span>
+          <span data-pos="1"></span>
+          <span data-pos="2"></span>
+          <span data-pos="3"></span>
+          <span data-pos="4"></span>
+          <span data-pos="5"></span>
+          <span data-pos="6"></span>
+          <span data-pos="7"></span>
+          <span data-pos="8"></span>
+          <span data-pos="9"></span>
+          <span data-pos="10"></span>
+          <span data-pos="11"></span>
+          <span data-pos="12"></span>
+        </div>
+      </article>
+
+      <aside class="side-instruments">
+        <section class="string-display">
+          <div class="side-title">
+            <span>STRING</span>
+            <strong>DETECTED</strong>
+          </div>
+
+          <div class="string-readout">
+            <div class="detected-note" id="detectedNote">—</div>
+
+            <div class="string-meta">
+              <div class="target-note" id="targetNote">Автоопределение</div>
+              <div class="frequency-row">
+                <span id="frequencyValue">0.00 Hz</span>
+                <span id="centsValue">0 cents</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <article class="vu-meter stability-meter">
+          <div class="vu-labels">
+            <span>MOVE</span>
+            <strong>STABILITY</strong>
+            <span>LOCK</span>
+          </div>
+
+          <div class="vu-window light-face small-face">
+            <div class="vu-backlight"></div>
+            <div class="vu-glass"></div>
+
+            <div class="vu-arc"></div>
+
+            <div class="vu-marks">
+              <i style="--r:-42deg"></i>
+              <i style="--r:-28deg"></i>
+              <i style="--r:-14deg"></i>
+              <i class="center" style="--r:0deg"></i>
+              <i style="--r:14deg"></i>
+              <i style="--r:28deg"></i>
+              <i style="--r:42deg"></i>
+            </div>
+
+            <div class="vu-numbers compact">
+              <span>0</span>
+              <span>50</span>
+              <span>100</span>
+            </div>
+
+            <div class="vu-needle" id="stabilityNeedle"></div>
+            <div class="vu-pivot"></div>
+          </div>
+
+          <div class="vu-lamps single">
+            <span id="stabilityLamp">Стабильность</span>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <div class="hint" id="tuneHint">Нажми «Включить тюнер»</div>
+
+    <section class="strings">
+      <button class="string-button is-auto active" data-note="AUTO" data-frequency="0">Авто</button>
+      <button class="string-button" data-note="E2" data-frequency="82.41">6 · E2</button>
+      <button class="string-button" data-note="A2" data-frequency="110.00">5 · A2</button>
+      <button class="string-button" data-note="D3" data-frequency="146.83">4 · D3</button>
+      <button class="string-button" data-note="G3" data-frequency="196.00">3 · G3</button>
+      <button class="string-button" data-note="B3" data-frequency="246.94">2 · B3</button>
+      <button class="string-button" data-note="E4" data-frequency="329.63">1 · E4</button>
+    </section>
+
+    <section class="fretboard-panel" aria-label="Гриф гитары">
+      <div class="fretboard-title">
+        <span>Standard tuning</span>
+        <strong>E A D G B E</strong>
+      </div>
+
+      <div class="fretboard">
+        <div class="fretboard-glow"></div>
+
+        <div class="fret-wires">
+          <span style="left: 10%;"></span>
+          <span style="left: 22%;"></span>
+          <span style="left: 34%;"></span>
+          <span style="left: 46%;"></span>
+          <span style="left: 58%;"></span>
+          <span style="left: 70%;"></span>
+          <span style="left: 82%;"></span>
+          <span style="left: 94%;"></span>
+        </div>
+
+        <div class="inlay inlay-1"></div>
+        <div class="inlay inlay-2"></div>
+        <div class="inlay inlay-3"></div>
+
+        <div class="fretboard-strings">
+          <div class="fret-string thin" data-note="E4"><span>E4</span></div>
+          <div class="fret-string" data-note="B3"><span>B3</span></div>
+          <div class="fret-string" data-note="G3"><span>G3</span></div>
+          <div class="fret-string" data-note="D3"><span>D3</span></div>
+          <div class="fret-string" data-note="A2"><span>A2</span></div>
+          <div class="fret-string thick" data-note="E2"><span>E2</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'tuner/js/tuner.js' %}"></script>
+{% endblock %}

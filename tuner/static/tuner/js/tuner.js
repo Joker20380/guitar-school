@@ -1,189 +1,545 @@
 (() => {
-  const GUITAR_STRINGS = [
-    { note: "E2", frequency: 82.41, label: "6-я струна · E2" },
-    { note: "A2", frequency: 110.00, label: "5-я струна · A2" },
-    { note: "D3", frequency: 146.83, label: "4-я струна · D3" },
-    { note: "G3", frequency: 196.00, label: "3-я струна · G3" },
-    { note: "B3", frequency: 246.94, label: "2-я струна · B3" },
-    { note: "E4", frequency: 329.63, label: "1-я струна · E4" },
+  const STRINGS = [
+    { label: "6-я струна", note: "E2", frequency: 82.41 },
+    { label: "5-я струна", note: "A2", frequency: 110.00 },
+    { label: "4-я струна", note: "D3", frequency: 146.83 },
+    { label: "3-я струна", note: "G3", frequency: 196.00 },
+    { label: "2-я струна", note: "B3", frequency: 246.94 },
+    { label: "1-я струна", note: "E4", frequency: 329.63 },
   ];
 
-  const startButton = document.getElementById("startButton");
-  const stopButton = document.getElementById("stopButton");
-  const statusPill = document.getElementById("statusPill");
+  const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
   const detectedNote = document.getElementById("detectedNote");
   const targetNote = document.getElementById("targetNote");
   const frequencyValue = document.getElementById("frequencyValue");
   const centsValue = document.getElementById("centsValue");
-  const needle = document.getElementById("needle");
+
+  const tuneNeedle = document.getElementById("tuneNeedle");
+  const stabilityNeedle = document.getElementById("stabilityNeedle");
+  const tuneLedSegments = Array.from(document.querySelectorAll("#tuneLedStrip span"));
+
   const tuneHint = document.getElementById("tuneHint");
-  const stringButtons = Array.from(document.querySelectorAll(".string-button"));
+  const statusPill = document.getElementById("statusPill");
+  const startButton = document.getElementById("startButton");
+  const stopButton = document.getElementById("stopButton");
+
+  const stringButtons = document.querySelectorAll(".string-button");
+  const fretStrings = document.querySelectorAll(".fret-string");
+
+  const stabilityLamp = document.getElementById("stabilityLamp");
+  const mainTuneMeter = document.querySelector(".vu-meter-main");
 
   let audioContext = null;
   let analyser = null;
-  let mediaStream = null;
   let source = null;
+  let stream = null;
+  let buffer = null;
   let rafId = null;
-  let selectedString = null;
 
-  function setStatus(active, text) {
-    statusPill.textContent = text;
-    statusPill.classList.toggle("active", active);
+  let selectedTarget = null;
+  let lastCents = null;
+  let smoothedTune = 0;
+  let smoothedStability = 0;
+  let displayedCents = 0;
+  let missedFrames = 0;
+
+  let centsHistory = [];
+  let lockFrames = 0;
+  let wasLocked = false;
+  let lastLockSoundAt = 0;
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
   }
 
-  function frequencyToCents(frequency, targetFrequency) {
+  function median(values) {
+    if (!values.length) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    return sorted[Math.floor(sorted.length / 2)];
+  }
+
+  function setNeedle(element, normalized) {
+    if (!element) return;
+
+    const value = clamp(normalized, -1, 1);
+    const angle = value * 42;
+
+    element.style.setProperty("--needle-angle", `${angle}deg`);
+  }
+
+  function frequencyToNoteName(frequency) {
+    if (!frequency || frequency <= 0) return "—";
+
+    const midi = Math.round(69 + 12 * Math.log2(frequency / 440));
+    const name = noteNames[((midi % 12) + 12) % 12];
+    const octave = Math.floor(midi / 12) - 1;
+
+    return `${name}${octave}`;
+  }
+
+  function centsBetween(frequency, targetFrequency) {
     return 1200 * Math.log2(frequency / targetFrequency);
   }
 
-  function findClosestString(frequency) {
-    return GUITAR_STRINGS.reduce((best, item) => {
-      const currentDiff = Math.abs(Math.log2(frequency / item.frequency));
-      const bestDiff = Math.abs(Math.log2(frequency / best.frequency));
-      return currentDiff < bestDiff ? item : best;
-    }, GUITAR_STRINGS[0]);
+  function getClosestString(frequency) {
+    return STRINGS.reduce((closest, item) => {
+      const currentDistance = Math.abs(centsBetween(frequency, item.frequency));
+      const closestDistance = Math.abs(centsBetween(frequency, closest.frequency));
+      return currentDistance < closestDistance ? item : closest;
+    }, STRINGS[0]);
   }
 
-  function setNeedle(cents) {
-    const clamped = Math.max(-50, Math.min(50, cents));
-    const percent = ((clamped + 50) / 100) * 100;
-    needle.style.left = `${percent}%`;
+  function smoothCents(rawCents) {
+    centsHistory.push(rawCents);
+
+    if (centsHistory.length > 7) {
+      centsHistory.shift();
+    }
+
+    const filtered = median(centsHistory);
+    const distance = Math.abs(filtered - displayedCents);
+    const factor = distance > 18 ? 0.42 : distance > 7 ? 0.30 : 0.20;
+
+    displayedCents = displayedCents * (1 - factor) + filtered * factor;
+
+    if (Math.abs(displayedCents) < 0.8) {
+      displayedCents = 0;
+    }
+
+    return displayedCents;
   }
 
-  function updateHint(cents) {
-    tuneHint.classList.remove("ok", "bad");
+  function setTuneNeedle(cents) {
+    const target = clamp(cents, -50, 50) / 50;
+    const distance = Math.abs(target - smoothedTune);
+    const factor = distance > 0.35 ? 0.34 : 0.24;
 
-    if (Math.abs(cents) <= 5) {
+    smoothedTune = smoothedTune * (1 - factor) + target * factor;
+
+    if (Math.abs(smoothedTune) < 0.01) {
+      smoothedTune = 0;
+    }
+
+    setNeedle(tuneNeedle, smoothedTune);
+  }
+
+  function setStabilityNeedle(cents) {
+    if (lastCents === null) {
+      lastCents = cents;
+      smoothedStability = 0.2;
+    }
+
+    const movement = Math.abs(cents - lastCents);
+    const stability = clamp(1 - movement / 12, 0, 1);
+
+    smoothedStability = smoothedStability * 0.82 + stability * 0.18;
+    setNeedle(stabilityNeedle, smoothedStability * 2 - 1);
+
+    if (stabilityLamp) {
+      stabilityLamp.classList.toggle("active", smoothedStability > 0.70);
+    }
+
+    lastCents = cents;
+  }
+
+  function updateTuneLedStrip(cents) {
+    if (!tuneLedSegments.length) return;
+
+    const abs = Math.abs(cents);
+    const direction = cents < 0 ? -1 : cents > 0 ? 1 : 0;
+    const strength = Math.min(12, Math.ceil(abs / 4));
+
+    tuneLedSegments.forEach((segment) => {
+      segment.classList.remove("on-flat", "on-sharp", "on-lock", "on-near", "warn", "hot");
+
+      const pos = Number(segment.dataset.pos);
+      const distance = Math.abs(pos);
+
+      if (abs <= 4 && pos === 0) {
+        segment.classList.add("on-lock");
+        return;
+      }
+
+      if (abs <= 9 && distance <= 1) {
+        segment.classList.add("on-near");
+        return;
+      }
+
+      if (direction < 0 && pos < 0 && distance <= strength) {
+        segment.classList.add("on-flat");
+
+        if (distance >= 9) {
+          segment.classList.add("hot");
+        } else if (distance >= 5) {
+          segment.classList.add("warn");
+        }
+      }
+
+      if (direction > 0 && pos > 0 && distance <= strength) {
+        segment.classList.add("on-sharp");
+
+        if (distance >= 9) {
+          segment.classList.add("hot");
+        } else if (distance >= 5) {
+          segment.classList.add("warn");
+        }
+      }
+    });
+  }
+
+  function clearTuneLedStrip() {
+    tuneLedSegments.forEach((segment) => {
+      segment.classList.remove("on-flat", "on-sharp", "on-lock", "on-near", "warn", "hot");
+    });
+  }
+
+  function playTone(frequency = 784, duration = 0.32, volume = 0.13) {
+    if (!audioContext) return;
+
+    try {
+      const start = audioContext.currentTime;
+
+      const master = audioContext.createGain();
+      master.gain.setValueAtTime(0.0001, start);
+      master.gain.exponentialRampToValueAtTime(volume, start + 0.018);
+      master.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+      const filter = audioContext.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(5200, start);
+      filter.Q.setValueAtTime(0.7, start);
+
+      filter.connect(master);
+      master.connect(audioContext.destination);
+
+      const osc1 = audioContext.createOscillator();
+      osc1.type = "triangle";
+      osc1.frequency.setValueAtTime(frequency, start);
+      osc1.connect(filter);
+      osc1.start(start);
+      osc1.stop(start + duration + 0.03);
+
+      const osc2 = audioContext.createOscillator();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(frequency * 2, start);
+      osc2.connect(filter);
+      osc2.start(start + 0.02);
+      osc2.stop(start + duration * 0.72);
+    } catch (error) {
+      console.warn("Tone failed:", error);
+    }
+  }
+
+  function playLockSound() {
+    if (!audioContext) return;
+
+    const now = performance.now();
+
+    if (now - lastLockSoundAt < 1900) return;
+
+    lastLockSoundAt = now;
+
+    try {
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
+      const start = audioContext.currentTime;
+      const duration = 0.68;
+
+      const master = audioContext.createGain();
+      master.gain.setValueAtTime(0.0001, start);
+      master.gain.exponentialRampToValueAtTime(0.16, start + 0.018);
+      master.gain.exponentialRampToValueAtTime(0.055, start + 0.28);
+      master.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+      const filter = audioContext.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(6400, start);
+      filter.Q.setValueAtTime(0.55, start);
+
+      filter.connect(master);
+      master.connect(audioContext.destination);
+
+      const notes = [
+        { frequency: 880.00, delay: 0.00, length: 0.46, type: "triangle", gain: 1.00 },
+        { frequency: 1174.66, delay: 0.09, length: 0.46, type: "sine", gain: 0.72 },
+        { frequency: 1760.00, delay: 0.18, length: 0.34, type: "sine", gain: 0.38 },
+      ];
+
+      notes.forEach((note) => {
+        const noteGain = audioContext.createGain();
+        const t = start + note.delay;
+
+        noteGain.gain.setValueAtTime(0.0001, t);
+        noteGain.gain.exponentialRampToValueAtTime(note.gain, t + 0.016);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, t + note.length);
+
+        noteGain.connect(filter);
+
+        const osc = audioContext.createOscillator();
+        osc.type = note.type;
+        osc.frequency.setValueAtTime(note.frequency, t);
+        osc.connect(noteGain);
+        osc.start(t);
+        osc.stop(t + note.length + 0.04);
+      });
+
+      if (navigator.vibrate) {
+        navigator.vibrate([35, 25, 35]);
+      }
+    } catch (error) {
+      console.warn("Lock sound failed:", error);
+    }
+  }
+
+  function setFeedback(cents) {
+    const isLocked = Math.abs(cents) <= 4;
+    const isNear = !isLocked && Math.abs(cents) <= 9;
+
+    updateTuneLedStrip(cents);
+
+    if (mainTuneMeter) {
+      mainTuneMeter.classList.toggle("is-locked", isLocked);
+      mainTuneMeter.classList.toggle("is-near", isNear);
+    }
+
+    if (isLocked) {
+      lockFrames += 1;
+
+      if (lockFrames >= 5 && !wasLocked) {
+        playLockSound();
+        wasLocked = true;
+      }
+
+      return;
+    }
+
+    lockFrames = 0;
+
+    if (Math.abs(cents) > 11) {
+      wasLocked = false;
+    }
+  }
+
+  function clearFeedback() {
+    clearTuneLedStrip();
+
+    if (stabilityLamp) {
+      stabilityLamp.classList.remove("active");
+    }
+
+    if (mainTuneMeter) {
+      mainTuneMeter.classList.remove("is-locked");
+      mainTuneMeter.classList.remove("is-near");
+    }
+
+    lockFrames = 0;
+  }
+
+  function setHint(cents) {
+    if (!tuneHint) return;
+
+    tuneHint.className = "hint";
+
+    if (Math.abs(cents) <= 4) {
       tuneHint.textContent = "Точно. Струна настроена.";
       tuneHint.classList.add("ok");
       return;
     }
 
-    if (cents < 0) {
-      tuneHint.textContent = "Ниже нормы. Подтяни струну.";
-      tuneHint.classList.add("bad");
+    if (Math.abs(cents) <= 9) {
+      tuneHint.textContent = "Почти точно. Доведи стрелку в центр.";
+      tuneHint.classList.add("near");
       return;
     }
 
-    tuneHint.textContent = "Выше нормы. Ослабь струну.";
     tuneHint.classList.add("bad");
+
+    if (cents < 0) {
+      tuneHint.textContent = "Ниже нужной ноты. Подтяни струну.";
+    } else {
+      tuneHint.textContent = "Выше нужной ноты. Немного ослабь струну.";
+    }
   }
 
-  function autoCorrelate(buffer, sampleRate) {
-    const size = buffer.length;
+  function highlightTarget(note) {
+    stringButtons.forEach((button) => {
+      if (selectedTarget) {
+        button.classList.toggle("active", button.dataset.note === note);
+      } else {
+        button.classList.toggle("active", button.dataset.note === "AUTO");
+      }
+    });
+
+    fretStrings.forEach((string) => {
+      string.classList.toggle("active", string.dataset.note === note);
+    });
+  }
+
+  function clearFretboard() {
+    fretStrings.forEach((string) => string.classList.remove("active"));
+  }
+
+  function setWaitingState(message = "Сыграй открытую струну") {
+    detectedNote.textContent = "—";
+    frequencyValue.textContent = "0.00 Hz";
+    centsValue.textContent = "0 cents";
+
+    smoothedTune = smoothedTune * 0.96;
+    setNeedle(tuneNeedle, smoothedTune);
+    setNeedle(stabilityNeedle, -1);
+
+    clearFeedback();
+
+    tuneHint.className = "hint";
+    tuneHint.textContent = message;
+
+    if (!selectedTarget) {
+      targetNote.textContent = "Автоопределение";
+      clearFretboard();
+    }
+  }
+
+  function updateDisplay(frequency) {
+    const detected = frequencyToNoteName(frequency);
+    const target = selectedTarget || getClosestString(frequency);
+    const rawCents = centsBetween(frequency, target.frequency);
+    const cents = smoothCents(rawCents);
+
+    missedFrames = 0;
+
+    detectedNote.textContent = detected;
+    targetNote.textContent = `${target.label} · ${target.note}`;
+    frequencyValue.textContent = `${frequency.toFixed(2)} Hz`;
+    centsValue.textContent = `${cents > 0 ? "+" : ""}${cents.toFixed(1)} cents`;
+
+    setTuneNeedle(cents);
+    setStabilityNeedle(cents);
+    setFeedback(cents);
+    setHint(cents);
+    highlightTarget(target.note);
+  }
+
+  function calculateRms(inputBuffer) {
     let rms = 0;
 
-    for (let i = 0; i < size; i += 1) {
-      rms += buffer[i] * buffer[i];
+    for (let i = 0; i < inputBuffer.length; i += 1) {
+      rms += inputBuffer[i] * inputBuffer[i];
     }
 
-    rms = Math.sqrt(rms / size);
+    return Math.sqrt(rms / inputBuffer.length);
+  }
 
-    if (rms < 0.01) {
-      return -1;
-    }
+  function autoCorrelate(inputBuffer, sampleRate, rms) {
+    if (rms < 0.008) return null;
 
-    let r1 = 0;
-    let r2 = size - 1;
+    let start = 0;
+    let end = inputBuffer.length - 1;
     const threshold = 0.2;
 
-    for (let i = 0; i < size / 2; i += 1) {
-      if (Math.abs(buffer[i]) < threshold) {
-        r1 = i;
+    for (let i = 0; i < inputBuffer.length / 2; i += 1) {
+      if (Math.abs(inputBuffer[i]) < threshold) {
+        start = i;
         break;
       }
     }
 
-    for (let i = 1; i < size / 2; i += 1) {
-      if (Math.abs(buffer[size - i]) < threshold) {
-        r2 = size - i;
+    for (let i = 1; i < inputBuffer.length / 2; i += 1) {
+      if (Math.abs(inputBuffer[inputBuffer.length - i]) < threshold) {
+        end = inputBuffer.length - i;
         break;
       }
     }
 
-    buffer = buffer.slice(r1, r2);
+    const trimmed = inputBuffer.slice(start, end);
+    const size = trimmed.length;
 
-    const newSize = buffer.length;
-    const correlations = new Array(newSize).fill(0);
+    if (size < 2) return null;
 
-    for (let lag = 0; lag < newSize; lag += 1) {
-      for (let i = 0; i < newSize - lag; i += 1) {
-        correlations[lag] += buffer[i] * buffer[i + lag];
+    const correlations = new Array(size).fill(0);
+
+    for (let lag = 0; lag < size; lag += 1) {
+      for (let i = 0; i < size - lag; i += 1) {
+        correlations[lag] += trimmed[i] * trimmed[i + lag];
       }
     }
 
     let d = 0;
 
-    while (correlations[d] > correlations[d + 1]) {
+    while (d + 1 < correlations.length && correlations[d] > correlations[d + 1]) {
       d += 1;
     }
 
     let maxValue = -1;
     let maxPosition = -1;
 
-    for (let i = d; i < newSize; i += 1) {
+    for (let i = d; i < size; i += 1) {
       if (correlations[i] > maxValue) {
         maxValue = correlations[i];
         maxPosition = i;
       }
     }
 
-    if (maxPosition <= 0) {
-      return -1;
+    if (maxPosition <= 0 || maxPosition + 1 >= correlations.length) {
+      return null;
     }
 
-    const x1 = correlations[maxPosition - 1] || 0;
-    const x2 = correlations[maxPosition] || 0;
-    const x3 = correlations[maxPosition + 1] || 0;
+    const x1 = correlations[maxPosition - 1];
+    const x2 = correlations[maxPosition];
+    const x3 = correlations[maxPosition + 1];
+    const divisor = 2 * (2 * x2 - x1 - x3);
 
-    const a = (x1 + x3 - 2 * x2) / 2;
-    const b = (x3 - x1) / 2;
-
-    if (a) {
-      maxPosition = maxPosition - b / (2 * a);
+    if (!divisor) {
+      return sampleRate / maxPosition;
     }
 
-    return sampleRate / maxPosition;
+    const correction = (x3 - x1) / divisor;
+    return sampleRate / (maxPosition + correction);
   }
 
-  function update() {
-    if (!analyser || !audioContext) {
-      return;
-    }
+  function tick() {
+    if (!analyser || !audioContext || !buffer) return;
 
-    const buffer = new Float32Array(analyser.fftSize);
     analyser.getFloatTimeDomainData(buffer);
 
-    const frequency = autoCorrelate(buffer, audioContext.sampleRate);
+    const rms = calculateRms(buffer);
+    const pitch = autoCorrelate(buffer, audioContext.sampleRate, rms);
 
-    if (frequency > 60 && frequency < 500) {
-      const target = selectedString || findClosestString(frequency);
-      const cents = frequencyToCents(frequency, target.frequency);
-
-      detectedNote.textContent = target.note;
-      targetNote.textContent = `Целевая струна: ${target.label}`;
-      frequencyValue.textContent = `${frequency.toFixed(2)} Hz`;
-      centsValue.textContent = `${cents > 0 ? "+" : ""}${cents.toFixed(1)} cents`;
-
-      setNeedle(cents);
-      updateHint(cents);
+    if (pitch && pitch > 60 && pitch < 420) {
+      updateDisplay(pitch);
     } else {
-      detectedNote.textContent = "—";
-      frequencyValue.textContent = "0.00 Hz";
-      centsValue.textContent = "0 cents";
-      targetNote.textContent = selectedString
-        ? `Целевая струна: ${selectedString.label}`
-        : "Целевая струна: —";
-      tuneHint.textContent = "Сыграй одну открытую струну";
-      tuneHint.classList.remove("ok", "bad");
-      setNeedle(0);
+      missedFrames += 1;
+
+      if (missedFrames > 18) {
+        setWaitingState();
+        lastCents = null;
+        centsHistory = [];
+      } else {
+        smoothedTune = smoothedTune * 0.985;
+        setNeedle(tuneNeedle, smoothedTune);
+      }
     }
 
-    rafId = requestAnimationFrame(update);
+    rafId = requestAnimationFrame(tick);
   }
 
   async function startTuner() {
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("getUserMedia is not supported");
+      }
+
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      if (audioContext.state === "suspended") {
+        await audioContext.resume();
+      }
+
+      playTone(784, 0.28, 0.12);
+
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
@@ -191,89 +547,109 @@
         },
       });
 
-      audioContext = new AudioContext();
       analyser = audioContext.createAnalyser();
-      analyser.fftSize = 4096;
+      analyser.fftSize = 8192;
 
-      source = audioContext.createMediaStreamSource(mediaStream);
+      buffer = new Float32Array(analyser.fftSize);
+      source = audioContext.createMediaStreamSource(stream);
       source.connect(analyser);
+
+      statusPill.textContent = "Микрофон включён";
+      statusPill.classList.add("active");
 
       startButton.disabled = true;
       stopButton.disabled = false;
 
-      setStatus(true, "Микрофон включен");
-      tuneHint.textContent = "Сыграй открытую струну";
+      missedFrames = 0;
+      centsHistory = [];
+      lockFrames = 0;
+      wasLocked = false;
 
-      update();
+      setWaitingState("Сыграй открытую струну");
+      tick();
     } catch (error) {
+      statusPill.textContent = "Нет доступа к микрофону";
+      statusPill.classList.remove("active");
+      tuneHint.textContent = "Разреши доступ к микрофону в браузере.";
       console.error(error);
-      setStatus(false, "Нет доступа к микрофону");
-      tuneHint.textContent = "Браузер не дал доступ к микрофону";
-      tuneHint.classList.add("bad");
     }
   }
 
-  function stopTuner() {
+  async function stopTuner() {
     if (rafId) {
       cancelAnimationFrame(rafId);
       rafId = null;
     }
 
-    if (source) {
-      source.disconnect();
-      source = null;
-    }
-
-    if (mediaStream) {
-      mediaStream.getTracks().forEach((track) => track.stop());
-      mediaStream = null;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      stream = null;
     }
 
     if (audioContext) {
-      audioContext.close();
+      await audioContext.close();
       audioContext = null;
     }
 
     analyser = null;
+    source = null;
+    buffer = null;
+    lastCents = null;
+    smoothedTune = 0;
+    smoothedStability = 0;
+    displayedCents = 0;
+    missedFrames = 0;
+    centsHistory = [];
+    lockFrames = 0;
+    wasLocked = false;
+
+    statusPill.textContent = "Микрофон выключен";
+    statusPill.classList.remove("active");
 
     startButton.disabled = false;
     stopButton.disabled = true;
 
-    detectedNote.textContent = "—";
-    frequencyValue.textContent = "0.00 Hz";
-    centsValue.textContent = "0 cents";
-    setNeedle(0);
-    setStatus(false, "Микрофон выключен");
-    tuneHint.textContent = "Нажми «Включить тюнер»";
-    tuneHint.classList.remove("ok", "bad");
+    setWaitingState("Нажми «Включить тюнер»");
   }
 
   stringButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const note = button.dataset.note;
-      const frequency = Number(button.dataset.frequency);
 
-      selectedString = GUITAR_STRINGS.find((item) => {
-        return item.note === note && Number(item.frequency.toFixed(2)) === Number(frequency.toFixed(2));
-      });
+      centsHistory = [];
+      displayedCents = 0;
+      lockFrames = 0;
+      wasLocked = false;
+
+      if (note === "AUTO") {
+        selectedTarget = null;
+
+        stringButtons.forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+
+        targetNote.textContent = "Автоопределение";
+        clearFretboard();
+        return;
+      }
+
+      selectedTarget = {
+        note,
+        frequency: Number(button.dataset.frequency),
+        label: button.textContent.split("·")[0].trim(),
+      };
 
       stringButtons.forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
 
-      if (selectedString) {
-        targetNote.textContent = `Целевая струна: ${selectedString.label}`;
-        tuneHint.textContent = `Выбрана ${selectedString.label}`;
-      }
+      targetNote.textContent = `${selectedTarget.label} · ${selectedTarget.note}`;
+      highlightTarget(note);
     });
   });
 
   startButton.addEventListener("click", startTuner);
   stopButton.addEventListener("click", stopTuner);
 
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    startButton.disabled = true;
-    setStatus(false, "Микрофон не поддерживается");
-    tuneHint.textContent = "Этот браузер не поддерживает доступ к микрофону";
-    tuneHint.classList.add("bad");
-  }
+  setNeedle(tuneNeedle, 0);
+  setNeedle(stabilityNeedle, -1);
+  setWaitingState("Нажми «Включить тюнер»");
 })();

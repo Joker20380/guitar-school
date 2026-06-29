@@ -80,7 +80,7 @@ h3,
 h4,
 h5 {
     margin: 0;
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-weight: 400;
     color: var(--text);
     letter-spacing: .01em;
@@ -134,13 +134,13 @@ h5 {
     border-radius: 50%;
     background: linear-gradient(135deg, var(--accent), var(--accent-dark));
     color: #17110a;
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 24px;
     box-shadow: 0 10px 26px rgba(214, 168, 79, .22);
 }
 
 .logo-text {
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     color: var(--text);
     font-size: 24px;
     letter-spacing: .06em;
@@ -164,7 +164,7 @@ h5 {
     gap: 6px;
     padding: 26px 0;
     color: var(--text);
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 18px;
     letter-spacing: .08em;
     text-transform: uppercase;
@@ -226,7 +226,7 @@ h5 {
     background: var(--accent);
     border: 1px solid var(--accent);
     color: #17110a;
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 16px;
     letter-spacing: .08em;
     text-transform: uppercase;
@@ -354,7 +354,7 @@ h5 {
     display: inline-block;
     margin-bottom: 18px;
     color: var(--accent);
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 20px;
     letter-spacing: .12em;
     text-transform: uppercase;
@@ -393,7 +393,7 @@ h5 {
     min-height: 54px;
     padding: 0 34px;
     border: 1px solid transparent;
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 17px;
     letter-spacing: .08em;
     text-transform: uppercase;
@@ -475,7 +475,7 @@ h5 {
     display: block;
     margin-bottom: 18px;
     color: var(--accent);
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 40px;
 }
 
@@ -517,7 +517,7 @@ h5 {
 
 .timeline-num {
     color: var(--accent);
-    font-family: "Anton", Impact, sans-serif;
+    font-family: var(--font-heading);
     font-size: 42px;
 }
 
@@ -946,4 +946,504 @@ button,
 .site-footer select,
 .site-footer textarea {
   border-radius: 10px !important;
+}
+
+
+/* =========================================================
+   Typography polish: Manrope + Oswald
+   ========================================================= */
+
+:root {
+  --font-body: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: "Oswald", "Arial Narrow", Impact, sans-serif;
+}
+
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+input,
+select,
+textarea,
+button {
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.section-kicker,
+.hero-card-label,
+.card-number,
+.contact-submit,
+.contact-primary-action,
+.contact-secondary-action,
+.course-submit,
+.tuner-btn,
+.site-logo,
+.navbar a,
+.header a {
+  font-family: var(--font-heading);
+}
+
+p,
+li,
+input,
+select,
+textarea {
+  letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.025em;
+}
+
+.section-kicker,
+.hero-card-label,
+.card-number {
+  letter-spacing: .12em;
+}
+
+.navbar a,
+.header a,
+.site-nav a,
+.site-menu a {
+  letter-spacing: .045em;
+}
+
+button,
+.contact-submit,
+.course-submit,
+.contact-primary-action,
+.contact-secondary-action {
+  letter-spacing: .07em;
+}
+
+
+/* =========================================================
+   Typography correction: softer and smaller
+   ========================================================= */
+
+:root {
+  --font-body: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body,
+input,
+select,
+textarea,
+button,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.section-kicker,
+.hero-card-label,
+.card-number,
+.contact-submit,
+.contact-primary-action,
+.contact-secondary-action,
+.course-submit,
+.tuner-btn,
+.site-logo,
+.navbar a,
+.header a {
+  font-family: var(--font-body) !important;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.section-kicker,
+.hero-card-label {
+  font-weight: 800;
+  letter-spacing: .10em;
+}
+
+button,
+.contact-submit,
+.course-submit,
+.contact-primary-action,
+.contact-secondary-action {
+  font-weight: 800;
+  letter-spacing: .035em;
+}
+
+.navbar a,
+.header a,
+.site-nav a,
+.site-menu a {
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+
+
+/* =========================================================
+   Homepage typography correction
+   ========================================================= */
+
+.home-page .home-hero-title,
+.home-page h1 {
+  font-family: var(--font-body) !important;
+  font-size: clamp(34px, 5.2vw, 62px) !important;
+  line-height: 1.04 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.055em !important;
+  text-transform: none !important;
+}
+
+.home-page h2 {
+  font-family: var(--font-body) !important;
+  font-size: clamp(26px, 3.4vw, 42px) !important;
+  line-height: 1.12 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  text-transform: none !important;
+}
+
+.home-page h3 {
+  font-family: var(--font-body) !important;
+  font-size: clamp(21px, 2.4vw, 28px) !important;
+  line-height: 1.18 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  text-transform: none !important;
+}
+
+.home-page p,
+.home-page li {
+  font-size: 16px !important;
+  line-height: 1.68 !important;
+}
+
+.home-page .section-kicker,
+.home-page .hero-card-label {
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: .09em !important;
+}
+
+.home-page a,
+.home-page button {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: .025em !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 560px) {
+  .home-page .home-hero-title,
+  .home-page h1 {
+    font-size: 34px !important;
+    line-height: 1.08 !important;
+  }
+
+  .home-page h2 {
+    font-size: 27px !important;
+  }
+}
+
+
+/* =========================================================
+   Homepage full heading scale correction
+   ========================================================= */
+
+.home-section h1,
+.home-section .hero-title,
+.home-section .home-hero-title {
+  font-family: var(--font-body) !important;
+  font-size: clamp(34px, 5vw, 58px) !important;
+  line-height: 1.06 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.05em !important;
+  text-transform: none !important;
+}
+
+.home-section h2,
+.home-section .section-title,
+.home-section .title,
+.home-section .block-title,
+.home-section .home-title {
+  font-family: var(--font-body) !important;
+  font-size: clamp(25px, 3vw, 36px) !important;
+  line-height: 1.14 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  text-transform: none !important;
+}
+
+.home-section h3,
+.home-section .card-title,
+.home-section .feature-title,
+.home-section .service-title {
+  font-family: var(--font-body) !important;
+  font-size: clamp(20px, 2vw, 25px) !important;
+  line-height: 1.22 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  text-transform: none !important;
+}
+
+.home-section h4,
+.home-section h5,
+.home-section h6 {
+  font-family: var(--font-body) !important;
+  font-size: 18px !important;
+  line-height: 1.25 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+  text-transform: none !important;
+}
+
+.home-section p,
+.home-section li {
+  font-family: var(--font-body) !important;
+  font-size: 16px !important;
+  line-height: 1.68 !important;
+}
+
+.home-section .section-kicker,
+.home-section .eyebrow,
+.home-section .subtitle,
+.home-section .small-title {
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+.home-section a,
+.home-section button,
+.home-section .btn {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: .02em !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 640px) {
+  .home-section h1,
+  .home-section .hero-title,
+  .home-section .home-hero-title {
+    font-size: 34px !important;
+    line-height: 1.08 !important;
+  }
+
+  .home-section h2,
+  .home-section .section-title,
+  .home-section .title,
+  .home-section .block-title,
+  .home-section .home-title {
+    font-size: 26px !important;
+    line-height: 1.16 !important;
+  }
+
+  .home-section h3,
+  .home-section .card-title,
+  .home-section .feature-title,
+  .home-section .service-title {
+    font-size: 21px !important;
+  }
+}
+
+
+/* =========================================================
+   Footer typography correction
+   ========================================================= */
+
+footer,
+.site-footer,
+.footer,
+.main-footer {
+  font-family: var(--font-body) !important;
+}
+
+footer h1,
+footer h2,
+footer h3,
+footer h4,
+footer h5,
+footer h6,
+.site-footer h1,
+.site-footer h2,
+.site-footer h3,
+.site-footer h4,
+.site-footer h5,
+.site-footer h6,
+.footer h1,
+.footer h2,
+.footer h3,
+.footer h4,
+.footer h5,
+.footer h6,
+.main-footer h1,
+.main-footer h2,
+.main-footer h3,
+.main-footer h4,
+.main-footer h5,
+.main-footer h6 {
+  font-family: var(--font-body) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  text-transform: none !important;
+  line-height: 1.18 !important;
+}
+
+footer h1,
+.site-footer h1,
+.footer h1,
+.main-footer h1 {
+  font-size: clamp(28px, 3.4vw, 42px) !important;
+}
+
+footer h2,
+.site-footer h2,
+.footer h2,
+.main-footer h2 {
+  font-size: clamp(23px, 2.5vw, 31px) !important;
+}
+
+footer h3,
+.site-footer h3,
+.footer h3,
+.main-footer h3 {
+  font-size: clamp(19px, 2vw, 24px) !important;
+}
+
+footer h4,
+footer h5,
+footer h6,
+.site-footer h4,
+.site-footer h5,
+.site-footer h6,
+.footer h4,
+.footer h5,
+.footer h6,
+.main-footer h4,
+.main-footer h5,
+.main-footer h6 {
+  font-size: 17px !important;
+}
+
+footer p,
+footer li,
+footer a,
+footer span,
+.site-footer p,
+.site-footer li,
+.site-footer a,
+.site-footer span,
+.footer p,
+.footer li,
+.footer a,
+.footer span,
+.main-footer p,
+.main-footer li,
+.main-footer a,
+.main-footer span {
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  letter-spacing: -0.005em !important;
+}
+
+footer .logo,
+footer .site-logo,
+footer .footer-logo,
+.site-footer .logo,
+.site-footer .site-logo,
+.site-footer .footer-logo,
+.footer .logo,
+.footer .site-logo,
+.footer .footer-logo,
+.main-footer .logo,
+.main-footer .site-logo,
+.main-footer .footer-logo {
+  font-family: var(--font-body) !important;
+  font-size: clamp(22px, 2.5vw, 30px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.035em !important;
+  text-transform: none !important;
+}
+
+footer .section-kicker,
+footer .footer-kicker,
+footer .subtitle,
+.site-footer .section-kicker,
+.site-footer .footer-kicker,
+.site-footer .subtitle,
+.footer .section-kicker,
+.footer .footer-kicker,
+.footer .subtitle,
+.main-footer .section-kicker,
+.main-footer .footer-kicker,
+.main-footer .subtitle {
+  font-family: var(--font-body) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+footer a,
+.site-footer a,
+.footer a,
+.main-footer a {
+  font-weight: 700 !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 640px) {
+  footer h1,
+  .site-footer h1,
+  .footer h1,
+  .main-footer h1 {
+    font-size: 28px !important;
+  }
+
+  footer h2,
+  .site-footer h2,
+  .footer h2,
+  .main-footer h2 {
+    font-size: 23px !important;
+  }
+
+  footer p,
+  footer li,
+  footer a,
+  footer span,
+  .site-footer p,
+  .site-footer li,
+  .site-footer a,
+  .site-footer span,
+  .footer p,
+  .footer li,
+  .footer a,
+  .footer span,
+  .main-footer p,
+  .main-footer li,
+  .main-footer a,
+  .main-footer span {
+    font-size: 14px !important;
+  }
 }

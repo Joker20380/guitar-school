@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Контакты{% endblock %}
+{% block description %}Контакты школы игры на гитаре: запись на уроки, вопросы по курсам и онлайн-занятиям.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'contacts/css/contacts.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="contacts-page">
+  <div class="container">
+    <header class="contacts-hero">
+      <p class="section-kicker">Contacts</p>
+      <h1>Связаться со школой</h1>
+      <p>
+        Напишите нам, если хотите записаться на пробный урок, выбрать курс
+        или задать вопрос по онлайн-занятиям.
+      </p>
+    </header>
+
+    {% if messages %}
+      <div class="contact-messages">
+        {% for message in messages %}
+          <div class="contact-message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="contacts-layout">
+      <aside class="contacts-info">
+        <article class="contact-info-card">
+          <span>01</span>
+          <h2>Формат</h2>
+          <p>Индивидуальные занятия, курсы для новичков и онлайн-уроки.</p>
+        </article>
+
+        <article class="contact-info-card">
+          <span>02</span>
+          <h2>Локация</h2>
+          <p>{{ contact_address }}</p>
+        </article>
+
+        <article class="contact-info-card">
+          <span>03</span>
+          <h2>Время</h2>
+          <p>{{ contact_working_hours }}</p>
+        </article>
+
+        <div class="direct-contacts">
+          {% if contact_phone %}
+            <a href="tel:{{ contact_phone }}">{{ contact_phone }}</a>
+          {% endif %}
+
+          {% if contact_email %}
+            <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+          {% endif %}
+
+          {% if contact_telegram %}
+            <a href="https://t.me/{{ contact_telegram|cut:'@' }}" target="_blank" rel="noopener">
+              Telegram {{ contact_telegram }}
+            </a>
+          {% endif %}
+        </div>
+      </aside>
+
+      <main class="contact-form-card">
+        <p class="section-kicker">Message</p>
+        <h2>Оставить сообщение</h2>
+        <p>
+          Укажите удобный способ связи. Все сообщения сохраняются в админке,
+          чтобы ничего не потерялось.
+        </p>
+
+        <form method="post" class="contact-form">
+          {% csrf_token %}
+
+          {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+          {% endfor %}
+
+          {% for field in form.visible_fields %}
+            <label>
+              <span>{{ field.label }}</span>
+              {{ field }}
+              {% if field.errors %}
+                <small class="field-error">{{ field.errors|striptags }}</small>
+              {% endif %}
+            </label>
+          {% endfor %}
+
+          {% if form.non_field_errors %}
+            <div class="field-error form-error">
+              {{ form.non_field_errors|striptags }}
+            </div>
+          {% endif %}
+
+          <button type="submit" class="contact-submit">
+            Отправить сообщение
+          </button>
+        </form>
+      </main>
+    </div>
+  </div>
+</section>
+{% endblock %}

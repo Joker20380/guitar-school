@@ -16,6 +16,10 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+def env(name, default=None):
+    return os.environ.get(name, default)
+
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'pages',
     'tuner',
     "courses",
+    "contacts",
 ]
 
 MIDDLEWARE = [
@@ -185,3 +190,12 @@ LOGOUT_REDIRECT_URL = "/"
 # Phone number validation
 PHONENUMBER_DEFAULT_REGION = "BE"
 PHONENUMBER_DB_FORMAT = "E164"
+
+
+# Contact page
+CONTACT_PHONE = env("CONTACT_PHONE", default="")
+CONTACT_EMAIL = env("CONTACT_EMAIL", default="")
+CONTACT_TELEGRAM = env("CONTACT_TELEGRAM", default="")
+CONTACT_ADDRESS = env("CONTACT_ADDRESS", default="Гент / онлайн")
+CONTACT_WORKING_HOURS = env("CONTACT_WORKING_HOURS", default="По предварительной записи")
+CONTACT_NOTIFY_EMAIL = env("CONTACT_NOTIFY_EMAIL", default="")

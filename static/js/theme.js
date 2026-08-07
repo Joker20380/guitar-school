@@ -146,3 +146,18 @@
         initActiveNav();
     });
 })();
+
+
+// Clean mobile menu toggle
+document.addEventListener("DOMContentLoaded", function () {
+  const toggle = document.querySelector("[data-mobile-menu-toggle]");
+  const menu = document.querySelector("[data-mobile-menu]");
+
+  if (!toggle || !menu) {
+    return;
+  }
+
+  toggle.addEventListener("click", function () {
+    menu.classList.toggle("is-open");
+  });
+});

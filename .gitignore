@@ -9,3 +9,10 @@ venv/
 .idea/
 .vscode/
 .DS_Store
+
+# Local backup and patch artifacts
+*.bak
+*.bak-*
+*.bak_*
+*.orig
+*.rej

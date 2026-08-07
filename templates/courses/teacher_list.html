@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Преподаватели{% endblock %}
+{% block description %}Преподаватели школы игры на гитаре: навыки, опыт, уровень преподавания и форматы занятий.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="courses-page teacher-page">
+  <div class="container">
+    <header class="courses-hero">
+      <p class="section-kicker">Teachers</p>
+      <h1>Преподаватели школы</h1>
+      <p>
+        Выберите преподавателя по уровню, стилю занятий и навыкам.
+        Ученики могут отправить заявку на занятия с выбранным преподавателем из личного кабинета.
+      </p>
+    </header>
+
+    <div class="course-grid teacher-grid">
+      {% for teacher in teachers %}
+        <article class="course-card teacher-card">
+          {% if teacher.photo_url %}
+            <div class="teacher-photo" style="background-image: url('{{ teacher.photo_url }}');"></div>
+          {% else %}
+            <div class="teacher-photo teacher-photo-empty">
+              {{ teacher.full_name|slice:":1" }}
+            </div>
+          {% endif %}
+
+          <div class="course-card-body">
+            <div class="course-badges">
+              <span>{{ teacher.get_teaching_level_display }}</span>
+              <span>{{ teacher.get_lesson_format_display }}</span>
+            </div>
+
+            <h2>{{ teacher.full_name }}</h2>
+            <p>{{ teacher.short_bio }}</p>
+
+            {% if teacher.skills.all %}
+              <div class="teacher-skills">
+                {% for skill in teacher.skills.all %}
+                  <span>{{ skill.name }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <a class="course-card-link" href="{{ teacher.get_absolute_url }}">
+              Смотреть преподавателя
+            </a>
+          </div>
+        </article>
+      {% empty %}
+        <div class="empty-course-list">
+          Преподаватели пока не добавлены.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -318,3 +318,196 @@ class LessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.enrollment.student_name} — {self.lesson.title}"
+
+
+class TeacherSkill(models.Model):
+    name = models.CharField("Навык", max_length=120, unique=True)
+    slug = models.SlugField("URL-адрес", max_length=140, unique=True)
+    sort_order = models.PositiveIntegerField("Порядок", default=100)
+
+    class Meta:
+        verbose_name = "Навык преподавателя"
+        verbose_name_plural = "Навыки преподавателей"
+        ordering = ["sort_order", "name"]
+
+    def __str__(self):
+        return self.name
+
+
+class Teacher(models.Model):
+    LEVEL_BEGINNER = "beginner"
+    LEVEL_INTERMEDIATE = "intermediate"
+    LEVEL_ADVANCED = "advanced"
+    LEVEL_PRO = "pro"
+
+    LEVEL_CHOICES = [
+        (LEVEL_BEGINNER, "Новички"),
+        (LEVEL_INTERMEDIATE, "Средний уровень"),
+        (LEVEL_ADVANCED, "Продвинутый уровень"),
+        (LEVEL_PRO, "Профессиональный уровень"),
+    ]
+
+    FORMAT_ONLINE = "online"
+    FORMAT_OFFLINE = "offline"
+    FORMAT_HYBRID = "hybrid"
+
+    FORMAT_CHOICES = [
+        (FORMAT_ONLINE, "Онлайн"),
+        (FORMAT_OFFLINE, "Офлайн"),
+        (FORMAT_HYBRID, "Онлайн + офлайн"),
+    ]
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="teacher_profile",
+        verbose_name="Аккаунт пользователя",
+    )
+    full_name = models.CharField("Имя преподавателя", max_length=160)
+    slug = models.SlugField("URL-адрес", max_length=180, unique=True)
+    photo_url = models.CharField("Фото / ссылка на изображение", max_length=500, blank=True)
+
+    short_bio = models.CharField("Краткое описание", max_length=260)
+    bio = models.TextField("Биография / описание", blank=True)
+
+    skills = models.ManyToManyField(
+        TeacherSkill,
+        blank=True,
+        related_name="teachers",
+        verbose_name="Навыки",
+    )
+
+    teaching_level = models.CharField(
+        "Уровень преподавания",
+        max_length=32,
+        choices=LEVEL_CHOICES,
+        default=LEVEL_BEGINNER,
+    )
+    lesson_format = models.CharField(
+        "Формат занятий",
+        max_length=32,
+        choices=FORMAT_CHOICES,
+        default=FORMAT_HYBRID,
+    )
+
+    experience_years = models.PositiveIntegerField("Опыт, лет", default=0)
+    sort_order = models.PositiveIntegerField("Порядок", default=100)
+    is_active = models.BooleanField("Показывать на сайте", default=True)
+
+    created_at = models.DateTimeField("Создан", auto_now_add=True)
+    updated_at = models.DateTimeField("Обновлён", auto_now=True)
+
+    class Meta:
+        verbose_name = "Преподаватель"
+        verbose_name_plural = "Преподаватели"
+        ordering = ["sort_order", "full_name"]
+
+    def __str__(self):
+        return self.full_name
+
+    def get_absolute_url(self):
+        return reverse("courses:teacher_detail", kwargs={"slug": self.slug})
+
+
+class TeacherAssignment(models.Model):
+    enrollment = models.ForeignKey(
+        CourseEnrollment,
+        on_delete=models.CASCADE,
+        related_name="teacher_assignments",
+        verbose_name="Доступ ученика к курсу",
+    )
+    teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.CASCADE,
+        related_name="student_assignments",
+        verbose_name="Преподаватель",
+    )
+    is_primary = models.BooleanField("Основной преподаватель", default=False)
+    is_active = models.BooleanField("Активно", default=True)
+    assigned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="teacher_assignments_created",
+        verbose_name="Назначил",
+    )
+    notes = models.TextField("Заметки", blank=True)
+    assigned_at = models.DateTimeField("Назначен", auto_now_add=True)
+    updated_at = models.DateTimeField("Обновлён", auto_now=True)
+
+    class Meta:
+        verbose_name = "Назначение преподавателя"
+        verbose_name_plural = "Назначения преподавателей"
+        ordering = ["-is_primary", "-assigned_at"]
+
+    def __str__(self):
+        return f"{self.enrollment} — {self.teacher}"
+
+
+class TeacherRequest(models.Model):
+    TYPE_ADD = "add"
+    TYPE_CHANGE = "change"
+
+    TYPE_CHOICES = [
+        (TYPE_ADD, "Хочу занятия с преподавателем"),
+        (TYPE_CHANGE, "Хочу сменить преподавателя"),
+    ]
+
+    STATUS_NEW = "new"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+    STATUS_CANCELLED = "cancelled"
+
+    STATUS_CHOICES = [
+        (STATUS_NEW, "Новая"),
+        (STATUS_APPROVED, "Одобрена"),
+        (STATUS_REJECTED, "Отклонена"),
+        (STATUS_CANCELLED, "Отменена"),
+    ]
+
+    enrollment = models.ForeignKey(
+        CourseEnrollment,
+        on_delete=models.CASCADE,
+        related_name="teacher_requests",
+        verbose_name="Ученик / курс",
+    )
+    request_type = models.CharField(
+        "Тип заявки",
+        max_length=32,
+        choices=TYPE_CHOICES,
+        default=TYPE_ADD,
+    )
+    current_teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="change_requests_from",
+        verbose_name="Текущий преподаватель",
+    )
+    requested_teacher = models.ForeignKey(
+        Teacher,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="student_requests",
+        verbose_name="Желаемый преподаватель",
+    )
+    message = models.TextField("Комментарий ученика", blank=True)
+    status = models.CharField("Статус", max_length=32, choices=STATUS_CHOICES, default=STATUS_NEW)
+    admin_comment = models.TextField("Комментарий администратора", blank=True)
+
+    created_at = models.DateTimeField("Создана", auto_now_add=True)
+    updated_at = models.DateTimeField("Обновлена", auto_now=True)
+
+    class Meta:
+        verbose_name = "Заявка на преподавателя"
+        verbose_name_plural = "Заявки на преподавателей"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        teacher = self.requested_teacher.full_name if self.requested_teacher else "любой преподаватель"
+        return f"{self.enrollment} — {teacher}"

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Контакты{% endblock %}
-{% block description %}Контакты школы игры на гитаре: запись на уроки, вопросы по курсам и онлайн-занятиям.{% endblock %}
+{% block description %}Контакты школы игры на гитаре: запись на пробный урок, вопросы по курсам, онлайн-занятия и индивидуальное обучение.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'contacts/css/contacts.css' %}">
@@ -11,13 +11,36 @@
 {% block content %}
 <section class="contacts-page">
   <div class="container">
+
     <header class="contacts-hero">
-      <p class="section-kicker">Contacts</p>
-      <h1>Связаться со школой</h1>
-      <p>
-        Напишите нам, если хотите записаться на пробный урок, выбрать курс
-        или задать вопрос по онлайн-занятиям.
-      </p>
+      <div class="contacts-hero-text">
+        <p class="section-kicker">Contact the studio</p>
+        <h1>Записаться на урок гитары</h1>
+        <p>
+          Напишите нам, если хотите подобрать курс, записаться на пробное занятие
+          или задать вопрос по онлайн-урокам. Ответим и поможем выбрать удобный формат.
+        </p>
+
+        <div class="contacts-hero-actions">
+          <a href="#contact-form" class="contact-primary-action">Оставить заявку</a>
+          <a href="/courses/" class="contact-secondary-action">Посмотреть курсы</a>
+        </div>
+      </div>
+
+      <aside class="contacts-hero-card">
+        <span class="hero-card-label">Guitar school</span>
+        <h2>Первый шаг — короткое сообщение</h2>
+        <p>
+          Расскажите ваш уровень, цель и удобный формат. Мы подскажем,
+          с какого курса или урока лучше начать.
+        </p>
+
+        <div class="hero-mini-list">
+          <span>Пробный урок</span>
+          <span>Онлайн-занятия</span>
+          <span>Индивидуальный план</span>
+        </div>
+      </aside>
     </header>
 
     {% if messages %}
@@ -30,47 +53,68 @@
 
     <div class="contacts-layout">
       <aside class="contacts-info">
-        <article class="contact-info-card">
-          <span>01</span>
-          <h2>Формат</h2>
-          <p>Индивидуальные занятия, курсы для новичков и онлайн-уроки.</p>
+
+        <article class="contact-info-card main-contact-card">
+          <span class="card-number">01</span>
+          <h2>Связь</h2>
+          <p>
+            Можно написать через форму или напрямую, если контакты уже указаны.
+          </p>
+
+          <div class="direct-contacts">
+            {% if contact_phone %}
+              <a href="tel:{{ contact_phone }}">
+                <small>Телефон</small>
+                <strong>{{ contact_phone }}</strong>
+              </a>
+            {% endif %}
+
+            {% if contact_email %}
+              <a href="mailto:{{ contact_email }}">
+                <small>Email</small>
+                <strong>{{ contact_email }}</strong>
+              </a>
+            {% endif %}
+
+            {% if contact_telegram %}
+              <a href="https://t.me/{{ contact_telegram|cut:'@' }}" target="_blank" rel="noopener">
+                <small>Telegram</small>
+                <strong>{{ contact_telegram }}</strong>
+              </a>
+            {% endif %}
+
+            {% if not contact_phone and not contact_email and not contact_telegram %}
+              <div class="empty-contact-note">
+                Прямые контакты пока не указаны в настройках. Используйте форму справа.
+              </div>
+            {% endif %}
+          </div>
         </article>
 
         <article class="contact-info-card">
-          <span>02</span>
+          <span class="card-number">02</span>
+          <h2>Формат</h2>
+          <p>Индивидуальные уроки, курсы для новичков и онлайн-занятия.</p>
+        </article>
+
+        <article class="contact-info-card">
+          <span class="card-number">03</span>
           <h2>Локация</h2>
           <p>{{ contact_address }}</p>
         </article>
 
         <article class="contact-info-card">
-          <span>03</span>
+          <span class="card-number">04</span>
           <h2>Время</h2>
           <p>{{ contact_working_hours }}</p>
         </article>
-
-        <div class="direct-contacts">
-          {% if contact_phone %}
-            <a href="tel:{{ contact_phone }}">{{ contact_phone }}</a>
-          {% endif %}
-
-          {% if contact_email %}
-            <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-          {% endif %}
-
-          {% if contact_telegram %}
-            <a href="https://t.me/{{ contact_telegram|cut:'@' }}" target="_blank" rel="noopener">
-              Telegram {{ contact_telegram }}
-            </a>
-          {% endif %}
-        </div>
       </aside>
 
-      <main class="contact-form-card">
-        <p class="section-kicker">Message</p>
+      <main class="contact-form-card" id="contact-form">
+        <p class="section-kicker">Send a message</p>
         <h2>Оставить сообщение</h2>
         <p>
-          Укажите удобный способ связи. Все сообщения сохраняются в админке,
-          чтобы ничего не потерялось.
+          Заполните форму — сообщение сохранится в админке, чтобы заявка не потерялась.
         </p>
 
         <form method="post" class="contact-form">
@@ -80,21 +124,71 @@
             {{ hidden }}
           {% endfor %}
 
-          {% for field in form.visible_fields %}
-            <label>
-              <span>{{ field.label }}</span>
-              {{ field }}
-              {% if field.errors %}
-                <small class="field-error">{{ field.errors|striptags }}</small>
-              {% endif %}
-            </label>
-          {% endfor %}
-
           {% if form.non_field_errors %}
             <div class="field-error form-error">
               {{ form.non_field_errors|striptags }}
             </div>
           {% endif %}
+
+          <div class="form-grid two-columns">
+            <label>
+              <span>{{ form.name.label }}</span>
+              {{ form.name }}
+              {% if form.name.errors %}
+                <small class="field-error">{{ form.name.errors|striptags }}</small>
+              {% endif %}
+            </label>
+
+            <label>
+              <span>{{ form.preferred_contact.label }}</span>
+              {{ form.preferred_contact }}
+              {% if form.preferred_contact.errors %}
+                <small class="field-error">{{ form.preferred_contact.errors|striptags }}</small>
+              {% endif %}
+            </label>
+          </div>
+
+          <div class="form-grid two-columns">
+            <label>
+              <span>{{ form.email.label }}</span>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <small class="field-error">{{ form.email.errors|striptags }}</small>
+              {% endif %}
+            </label>
+
+            <label>
+              <span>{{ form.phone.label }}</span>
+              {{ form.phone }}
+              {% if form.phone.errors %}
+                <small class="field-error">{{ form.phone.errors|striptags }}</small>
+              {% endif %}
+            </label>
+          </div>
+
+          <label>
+            <span>{{ form.telegram.label }}</span>
+            {{ form.telegram }}
+            {% if form.telegram.errors %}
+              <small class="field-error">{{ form.telegram.errors|striptags }}</small>
+            {% endif %}
+          </label>
+
+          <label>
+            <span>{{ form.subject.label }}</span>
+            {{ form.subject }}
+            {% if form.subject.errors %}
+              <small class="field-error">{{ form.subject.errors|striptags }}</small>
+            {% endif %}
+          </label>
+
+          <label>
+            <span>{{ form.message.label }}</span>
+            {{ form.message }}
+            {% if form.message.errors %}
+              <small class="field-error">{{ form.message.errors|striptags }}</small>
+            {% endif %}
+          </label>
 
           <button type="submit" class="contact-submit">
             Отправить сообщение
@@ -102,6 +196,27 @@
         </form>
       </main>
     </div>
+
+    <section class="contact-steps">
+      <div class="contact-step">
+        <span>01</span>
+        <h3>Вы пишете</h3>
+        <p>Указываете цель: научиться с нуля, подтянуть технику, разобрать песни или заниматься онлайн.</p>
+      </div>
+
+      <div class="contact-step">
+        <span>02</span>
+        <h3>Мы уточняем уровень</h3>
+        <p>Задаём несколько вопросов и подбираем формат: курс, индивидуальный урок или пробное занятие.</p>
+      </div>
+
+      <div class="contact-step">
+        <span>03</span>
+        <h3>Начинаем занятия</h3>
+        <p>После записи вы получаете доступ к материалам курса и плану обучения.</p>
+      </div>
+    </section>
+
   </div>
 </section>
 {% endblock %}

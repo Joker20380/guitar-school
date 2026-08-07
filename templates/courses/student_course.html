@@ -21,7 +21,12 @@
         </div>
 
         <h1>{{ course.title }}</h1>
-        <p class="course-lead">
+
+        <a class="course-card-link" href="{% url 'courses:my_course_teachers' course.slug %}">
+          Мои преподаватели
+        </a>
+
+<p class="course-lead">
           Это ваша учебная страница курса. Отмечайте пройденные уроки,
           чтобы преподаватель видел прогресс.
         </p>

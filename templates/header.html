@@ -1,43 +1,54 @@
-<header class="site-header" id="sticky-header">
-    <div class="container">
-        <div class="header-inner">
-            <a class="site-logo" href="/">
-                <span class="logo-mark">G</span>
-                <span class="logo-text">Guitar School</span>
-            </a>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="site-logo" href="/" aria-label="Guitar School">
+      <span class="site-logo-mark">G</span>
+      <span class="site-logo-text">Guitar<br>School</span>
+    </a>
 
-            <nav class="desktop-nav" aria-label="Главное меню">
-                <ul>
-                    <li><a href="/">Главная</a></li>
-                    <li><a href="/tuner/">Тюнер</a></li>
-                    <li class="has-submenu">
-                        <a href="#">Обучение <span class="menu-arrow">⌄</span></a>
-                        <ul class="submenu">
-                            <li><a href="#program">Программа</a></li>
-                            <li><a href="#steps">Этапы</a></li>
-                            <li><a href="#contact">Запись</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="/courses/">Курсы</a></li>
-                    <li><a href="/contacts/">Контакты</a></li>
-                </ul>
-            </nav>
+    <nav class="site-nav" aria-label="Главное меню">
+      <ul class="site-nav-list">
+        <li><a href="/">Главная</a></li>
+        <li><a href="/tuner/">Тюнер</a></li>
 
-            <a class="header-cta" href="#contact">Записаться</a>
+        <li class="nav-dropdown">
+          <button type="button" class="nav-dropdown-toggle">
+            Обучение
+          </button>
 
-            <button class="mobile-toggle" type="button" aria-label="Открыть меню" data-mobile-toggle>
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
+          <div class="nav-dropdown-menu">
+            <a href="/courses/">Курсы</a>
+            <a href="/courses/teachers/">Преподаватели</a>
+            <a href="/courses/my/">Личный кабинет</a>
+          </div>
+        </li>
 
-        <nav class="mobile-nav" aria-label="Мобильное меню" data-mobile-nav>
-            <a href="/">Главная</a>
-            <a href="/tuner/">Тюнер</a>
-            <a href="#program">Программа</a>
-            <a href="#steps">Этапы</a>
-            <a href="/contacts/">Контакты</a>
-        </nav>
+        <li><a href="/contacts/">Контакты</a></li>
+      </ul>
+    </nav>
+
+    <a class="header-cta" href="/contacts/#contact-form">
+      Записаться
+    </a>
+
+    <button class="mobile-nav-toggle" type="button" aria-label="Открыть меню" data-mobile-menu-toggle>
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <div class="mobile-nav-panel" data-mobile-menu>
+    <a href="/">Главная</a>
+    <a href="/tuner/">Тюнер</a>
+
+    <div class="mobile-nav-group">
+      <span>Обучение</span>
+      <a href="/courses/">Курсы</a>
+      <a href="/courses/teachers/">Преподаватели</a>
+      <a href="/courses/my/">Личный кабинет</a>
     </div>
+
+    <a href="/contacts/">Контакты</a>
+    <a class="mobile-nav-cta" href="/contacts/#contact-form">Записаться</a>
+  </div>
 </header>

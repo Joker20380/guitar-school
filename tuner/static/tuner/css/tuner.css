@@ -61,7 +61,7 @@
 .eyebrow {
   margin: 0 0 5px;
   color: var(--accent);
-  font-family: "Anton", Impact, sans-serif;
+  font-family: var(--font-heading);
   font-size: 13px;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -83,6 +83,75 @@
   line-height: 1.45;
 }
 
+.reference-pitch {
+  width: min(100%, 560px);
+  margin: 0 auto 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(214, 168, 79, .24);
+  background: rgba(245, 239, 228, .035);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.reference-pitch-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.reference-pitch-copy span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.reference-pitch-copy strong {
+  color: var(--accent-soft);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.reference-pitch-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(76px, 1fr));
+  padding: 3px;
+  border: 1px solid rgba(245, 239, 228, .14);
+  background: #0b0d0c;
+}
+
+.reference-pitch-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.reference-pitch-button:hover {
+  color: var(--accent-soft);
+}
+
+.reference-pitch-button.active {
+  border-color: rgba(214, 168, 79, .52);
+  background: var(--accent);
+  color: #17110a;
+  box-shadow: 0 0 18px rgba(214, 168, 79, .14);
+}
+
+.reference-pitch-button:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+
 .actions {
   display: flex;
   justify-content: center;
@@ -99,7 +168,7 @@
   min-height: 44px;
   padding: 0 24px;
   border: 1px solid transparent;
-  font-family: "Anton", Impact, sans-serif;
+  font-family: var(--font-heading);
   font-size: 15px;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -189,14 +258,14 @@
 
 .side-title span {
   color: var(--accent);
-  font-family: "Anton", Impact, sans-serif;
+  font-family: var(--font-heading);
   font-size: 16px;
 }
 
 .side-title strong,
 .vu-labels strong {
   color: #7a4f1d;
-  font-family: "Anton", Impact, sans-serif;
+  font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 400;
 }
@@ -215,7 +284,7 @@
 
 .detected-note {
   color: var(--accent-soft);
-  font-family: "Anton", Impact, sans-serif;
+  font-family: var(--font-heading);
   font-size: 62px;
   line-height: .9;
   text-align: center;
@@ -884,6 +953,7 @@
 
 .primary-button,
 .secondary-button,
+.reference-pitch-button,
 .string-button,
 .status-pill,
 .fret-string span,
@@ -904,6 +974,7 @@
 
 .primary-button,
 .secondary-button,
+.reference-pitch-button,
 .string-button,
 .status-pill,
 .fret-string span,
@@ -913,4 +984,15 @@
 
 .tune-led-strip span {
   border-radius: 4px !important;
+}
+
+@media (max-width: 560px) {
+  .reference-pitch {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reference-pitch-switch {
+    width: 100%;
+  }
 }

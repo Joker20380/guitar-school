@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Гитарный тюнер онлайн{% endblock %}
-{% block description %}Онлайн-тюнер для настройки гитары через микрофон. Стандартный строй E2 A2 D3 G3 B3 E4.{% endblock %}
+{% block description %}Онлайн-тюнер для настройки гитары через микрофон. Стандартный строй E2 A2 D3 G3 B3 E4 с выбором эталона 432 или 440 Гц.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'tuner/css/tuner.css' %}">
@@ -23,6 +23,24 @@
         Сыграй открытую струну и держи стрелку по центру. Зелёный центр означает, что струна настроена.
       </p>
     </header>
+
+    <section class="reference-pitch" aria-labelledby="referencePitchTitle">
+      <div class="reference-pitch-copy">
+        <span id="referencePitchTitle">Эталонная частота</span>
+        <strong id="referencePitchValue">A4 = 432 Гц</strong>
+      </div>
+
+      <div class="reference-pitch-switch" role="group" aria-label="Выбор эталонной частоты">
+        <button type="button" class="reference-pitch-button active"
+                data-reference-pitch="432" aria-pressed="true">
+          432 Гц
+        </button>
+        <button type="button" class="reference-pitch-button"
+                data-reference-pitch="440" aria-pressed="false">
+          440 Гц
+        </button>
+      </div>
+    </section>
 
     <div class="actions actions-top">
       <button class="primary-button" id="startButton">Включить тюнер</button>

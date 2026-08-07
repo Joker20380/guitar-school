@@ -1,12 +1,27 @@
 (() => {
+  const BASE_REFERENCE_PITCH = 440;
+  const SUPPORTED_REFERENCE_PITCHES = [432, 440];
+  let storedReferencePitch = null;
+  try {
+    storedReferencePitch = Number(window.localStorage.getItem("tunerReferencePitch"));
+  } catch (error) {
+    console.warn("Could not read tuner reference pitch:", error);
+  }
+  let referencePitch = SUPPORTED_REFERENCE_PITCHES.includes(storedReferencePitch)
+    ? storedReferencePitch
+    : 432;
+
   const STRINGS = [
-    { label: "6-я струна", note: "E2", frequency: 82.41 },
-    { label: "5-я струна", note: "A2", frequency: 110.00 },
-    { label: "4-я струна", note: "D3", frequency: 146.83 },
-    { label: "3-я струна", note: "G3", frequency: 196.00 },
-    { label: "2-я струна", note: "B3", frequency: 246.94 },
-    { label: "1-я струна", note: "E4", frequency: 329.63 },
-  ];
+    { label: "6-я струна", note: "E2", baseFrequency: 82.41 },
+    { label: "5-я струна", note: "A2", baseFrequency: 110.00 },
+    { label: "4-я струна", note: "D3", baseFrequency: 146.83 },
+    { label: "3-я струна", note: "G3", baseFrequency: 196.00 },
+    { label: "2-я струна", note: "B3", baseFrequency: 246.94 },
+    { label: "1-я струна", note: "E4", baseFrequency: 329.63 },
+  ].map((item) => ({
+    ...item,
+    frequency: item.baseFrequency * referencePitch / BASE_REFERENCE_PITCH,
+  }));
 
   const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -25,6 +40,8 @@
   const stopButton = document.getElementById("stopButton");
 
   const stringButtons = document.querySelectorAll(".string-button");
+  const referenceButtons = document.querySelectorAll(".reference-pitch-button");
+  const referencePitchValue = document.getElementById("referencePitchValue");
   const fretStrings = document.querySelectorAll(".fret-string");
 
   const stabilityLamp = document.getElementById("stabilityLamp");
@@ -71,7 +88,7 @@
   function frequencyToNoteName(frequency) {
     if (!frequency || frequency <= 0) return "—";
 
-    const midi = Math.round(69 + 12 * Math.log2(frequency / 440));
+    const midi = Math.round(69 + 12 * Math.log2(frequency / referencePitch));
     const name = noteNames[((midi % 12) + 12) % 12];
     const octave = Math.floor(midi / 12) - 1;
 
@@ -402,6 +419,48 @@
     }
   }
 
+  function applyReferencePitch(nextPitch, persist = true) {
+    const parsedPitch = Number(nextPitch);
+    if (!SUPPORTED_REFERENCE_PITCHES.includes(parsedPitch)) return;
+
+    referencePitch = parsedPitch;
+    STRINGS.forEach((item) => {
+      item.frequency = item.baseFrequency * referencePitch / BASE_REFERENCE_PITCH;
+    });
+
+    stringButtons.forEach((button) => {
+      const string = STRINGS.find((item) => item.note === button.dataset.note);
+      if (string) button.dataset.frequency = string.frequency.toFixed(2);
+    });
+
+    referenceButtons.forEach((button) => {
+      const isActive = Number(button.dataset.referencePitch) === referencePitch;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+
+    if (referencePitchValue) {
+      referencePitchValue.textContent = `A4 = ${referencePitch} Гц`;
+    }
+
+    if (selectedTarget) {
+      selectedTarget = STRINGS.find((item) => item.note === selectedTarget.note) || null;
+    }
+
+    centsHistory = [];
+    displayedCents = 0;
+    lastCents = null;
+    setWaitingState("Сыграй открытую струну");
+
+    if (persist) {
+      try {
+        window.localStorage.setItem("tunerReferencePitch", String(referencePitch));
+      } catch (error) {
+        console.warn("Could not save tuner reference pitch:", error);
+      }
+    }
+  }
+
   function updateDisplay(frequency) {
     const detected = frequencyToNoteName(frequency);
     const target = selectedTarget || getClosestString(frequency);
@@ -632,11 +691,7 @@
         return;
       }
 
-      selectedTarget = {
-        note,
-        frequency: Number(button.dataset.frequency),
-        label: button.textContent.split("·")[0].trim(),
-      };
+      selectedTarget = STRINGS.find((item) => item.note === note) || null;
 
       stringButtons.forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
@@ -646,9 +701,16 @@
     });
   });
 
+  referenceButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      applyReferencePitch(button.dataset.referencePitch);
+    });
+  });
+
   startButton.addEventListener("click", startTuner);
   stopButton.addEventListener("click", stopTuner);
 
+  applyReferencePitch(referencePitch, false);
   setNeedle(tuneNeedle, 0);
   setNeedle(stabilityNeedle, -1);
   setWaitingState("Нажми «Включить тюнер»");

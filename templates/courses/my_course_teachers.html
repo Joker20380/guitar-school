@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Мои преподаватели{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="course-detail-page student-teachers-page">
+  <div class="container">
+    <div class="course-detail-layout">
+      <article class="course-main">
+        <div class="course-badges">
+          <span>Личный кабинет</span>
+          <span>{{ course.title }}</span>
+        </div>
+
+        <h1>Мои преподаватели</h1>
+        <p class="course-lead">
+          Здесь отображаются преподаватели, назначенные администратором.
+          Также можно отправить заявку на смену преподавателя или занятия с другим преподавателем.
+        </p>
+
+        <section class="lesson-list">
+          <h2>Назначенные преподаватели</h2>
+
+          {% for assignment in assignments %}
+            <article class="student-teacher-card">
+              <div>
+                <h3>
+                  <a href="{{ assignment.teacher.get_absolute_url }}">
+                    {{ assignment.teacher.full_name }}
+                  </a>
+                </h3>
+                <p>{{ assignment.teacher.short_bio }}</p>
+
+                <div class="course-badges">
+                  {% if assignment.is_primary %}
+                    <span>Основной</span>
+                  {% endif %}
+                  <span>{{ assignment.teacher.get_teaching_level_display }}</span>
+                  <span>{{ assignment.teacher.get_lesson_format_display }}</span>
+                </div>
+              </div>
+
+              <a class="course-card-link" href="{{ assignment.teacher.get_absolute_url }}">
+                Профиль
+              </a>
+            </article>
+          {% empty %}
+            <p>
+              Преподаватель пока не назначен. Вы можете выбрать желаемого преподавателя ниже.
+            </p>
+          {% endfor %}
+        </section>
+
+        <section class="lesson-list">
+          <h2>Доступные преподаватели</h2>
+
+          <div class="teacher-mini-grid">
+            {% for teacher in active_teachers %}
+              <article class="teacher-mini-card">
+                <h3>
+                  <a href="{{ teacher.get_absolute_url }}">{{ teacher.full_name }}</a>
+                </h3>
+                <p>{{ teacher.short_bio }}</p>
+                <div class="course-badges">
+                  <span>{{ teacher.get_teaching_level_display }}</span>
+                  <span>{{ teacher.get_lesson_format_display }}</span>
+                </div>
+              </article>
+            {% empty %}
+              <p>Активные преподаватели пока не добавлены.</p>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="lesson-list">
+          <h2>Мои заявки</h2>
+
+          {% for item in teacher_requests %}
+            <article class="teacher-request-row">
+              <strong>{{ item.get_request_type_display }}</strong>
+              <span>{{ item.get_status_display }}</span>
+              <p>
+                {% if item.requested_teacher %}
+                  Желаемый преподаватель: {{ item.requested_teacher.full_name }}
+                {% else %}
+                  Желаемый преподаватель не выбран
+                {% endif %}
+              </p>
+            </article>
+          {% empty %}
+            <p>Заявок пока нет.</p>
+          {% endfor %}
+        </section>
+      </article>
+
+      <aside class="course-sidebar">
+        <div class="apply-card">
+          <p class="section-kicker">Teacher request</p>
+          <h2>Отправить заявку</h2>
+          <p>
+            Выберите тип заявки и преподавателя. Администратор рассмотрит запрос
+            и изменит назначение в админке.
+          </p>
+
+          <form method="post" action="{% url 'courses:request_teacher' course.slug %}" class="course-form">
+            {% csrf_token %}
+
+            {% for field in form.visible_fields %}
+              <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                  <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+              </label>
+            {% endfor %}
+
+            <button class="course-submit" type="submit">
+              Отправить заявку
+            </button>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

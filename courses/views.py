@@ -9,8 +9,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import CourseRequestForm
-from .models import Course, CourseRequest, CourseEnrollment, Lesson, LessonProgress
+from .forms import CourseRequestForm, TeacherRequestForm
+from .models import Course, CourseRequest, CourseEnrollment, Lesson, LessonProgress, Teacher, TeacherAssignment, TeacherRequest
 
 
 REQUEST_COOLDOWN_SECONDS = 30
@@ -302,3 +302,101 @@ def mark_lesson_complete(request, slug, lesson_id):
     progress.save(update_fields=["is_completed", "completed_at", "updated_at"])
 
     return redirect("courses:student_course", slug=slug)
+
+
+def teacher_list(request):
+    teachers = (
+        Teacher.objects
+        .filter(is_active=True)
+        .prefetch_related("skills")
+        .order_by("sort_order", "full_name")
+    )
+
+    return render(request, "courses/teacher_list.html", {
+        "teachers": teachers,
+    })
+
+
+def teacher_detail(request, slug):
+    teacher = get_object_or_404(
+        Teacher.objects.prefetch_related("skills"),
+        slug=slug,
+        is_active=True,
+    )
+
+    return render(request, "courses/teacher_detail.html", {
+        "teacher": teacher,
+    })
+
+
+@login_required
+def my_course_teachers(request, slug):
+    enrollment = get_object_or_404(
+        CourseEnrollment.objects.select_related("course"),
+        user=request.user,
+        course__slug=slug,
+        is_active=True,
+    )
+
+    assignments = (
+        TeacherAssignment.objects
+        .select_related("teacher")
+        .filter(enrollment=enrollment, is_active=True, teacher__is_active=True)
+        .order_by("-is_primary", "teacher__sort_order", "teacher__full_name")
+    )
+
+    active_teachers = (
+        Teacher.objects
+        .filter(is_active=True)
+        .prefetch_related("skills")
+        .order_by("sort_order", "full_name")
+    )
+
+    teacher_requests = (
+        TeacherRequest.objects
+        .select_related("current_teacher", "requested_teacher")
+        .filter(enrollment=enrollment)
+        .order_by("-created_at")[:10]
+    )
+
+    form = TeacherRequestForm(enrollment=enrollment)
+
+    return render(request, "courses/my_course_teachers.html", {
+        "course": enrollment.course,
+        "enrollment": enrollment,
+        "assignments": assignments,
+        "active_teachers": active_teachers,
+        "teacher_requests": teacher_requests,
+        "form": form,
+    })
+
+
+@login_required
+@require_POST
+def request_teacher(request, slug):
+    enrollment = get_object_or_404(
+        CourseEnrollment.objects.select_related("course"),
+        user=request.user,
+        course__slug=slug,
+        is_active=True,
+    )
+
+    form = TeacherRequestForm(request.POST, enrollment=enrollment)
+
+    if form.is_valid():
+        teacher_request = form.save(commit=False)
+        teacher_request.enrollment = enrollment
+        teacher_request.status = TeacherRequest.STATUS_NEW
+        teacher_request.save()
+
+        messages.success(
+            request,
+            "Заявка отправлена. Администратор школы рассмотрит её и назначит преподавателя.",
+        )
+    else:
+        messages.error(
+            request,
+            "Проверьте заявку. Нужно выбрать преподавателя и тип заявки.",
+        )
+
+    return redirect("courses:my_course_teachers", slug=slug)

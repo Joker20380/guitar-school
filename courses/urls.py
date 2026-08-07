@@ -5,6 +5,10 @@ from . import views
 app_name = "courses"
 
 urlpatterns = [
+    path("teachers/", views.teacher_list, name="teacher_list"),
+    path("teachers/<slug:slug>/", views.teacher_detail, name="teacher_detail"),
+    path("my/<slug:slug>/teachers/", views.my_course_teachers, name="my_course_teachers"),
+    path("my/<slug:slug>/teachers/request/", views.request_teacher, name="request_teacher"),
     path("", views.course_list, name="list"),
     path("verify/<str:token>/", views.verify_course_request, name="verify"),
     path("activate/<str:token>/", views.activate_student_account, name="activate"),

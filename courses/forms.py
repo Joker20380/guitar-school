@@ -6,7 +6,7 @@ from django.core.validators import validate_email
 from django.utils.html import strip_tags
 from phonenumber_field.formfields import PhoneNumberField
 
-from .models import CourseRequest
+from .models import CourseRequest, Teacher, TeacherAssignment, TeacherRequest
 
 
 URL_RE = re.compile(r"https?://|www\.|\.ru|\.com|\.net|\.org", re.IGNORECASE)
@@ -164,5 +164,86 @@ class CourseRequestForm(forms.ModelForm):
 
         if channel == CourseRequest.VERIFY_MESSENGER and not messenger and not phone:
             self.add_error("messenger", "Укажите мессенджер или телефон для подтверждения.")
+
+        return cleaned
+
+
+class TeacherRequestForm(forms.ModelForm):
+    class Meta:
+        model = TeacherRequest
+        fields = ["request_type", "current_teacher", "requested_teacher", "message"]
+        widgets = {
+            "request_type": forms.Select(),
+            "current_teacher": forms.Select(),
+            "requested_teacher": forms.Select(),
+            "message": forms.Textarea(attrs={
+                "placeholder": "Напишите, почему хотите заниматься с этим преподавателем или сменить текущего",
+                "rows": 4,
+                "maxlength": "1000",
+            }),
+        }
+
+    def __init__(self, *args, enrollment=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.enrollment = enrollment
+
+        self.fields["requested_teacher"].queryset = Teacher.objects.filter(is_active=True).order_by(
+            "sort_order",
+            "full_name",
+        )
+        self.fields["requested_teacher"].required = False
+        self.fields["requested_teacher"].empty_label = "Выберите преподавателя"
+
+        current_teacher_ids = []
+
+        if enrollment:
+            current_teacher_ids = list(
+                TeacherAssignment.objects
+                .filter(enrollment=enrollment, is_active=True, teacher__is_active=True)
+                .values_list("teacher_id", flat=True)
+            )
+
+        self.fields["current_teacher"].queryset = Teacher.objects.filter(id__in=current_teacher_ids).order_by(
+            "sort_order",
+            "full_name",
+        )
+        self.fields["current_teacher"].required = False
+        self.fields["current_teacher"].empty_label = "Текущий преподаватель"
+
+    def clean_message(self):
+        value = strip_tags(self.cleaned_data.get("message", "")).strip()
+        value = re.sub(r"\n{4,}", "\n\n\n", value)
+
+        if len(value) > 1000:
+            raise ValidationError("Комментарий слишком длинный.")
+
+        return value
+
+    def clean(self):
+        cleaned = super().clean()
+
+        request_type = cleaned.get("request_type")
+        current_teacher = cleaned.get("current_teacher")
+        requested_teacher = cleaned.get("requested_teacher")
+
+        if not requested_teacher:
+            self.add_error("requested_teacher", "Выберите преподавателя.")
+
+        if request_type == TeacherRequest.TYPE_CHANGE:
+            has_current_teachers = False
+
+            if self.enrollment:
+                has_current_teachers = TeacherAssignment.objects.filter(
+                    enrollment=self.enrollment,
+                    is_active=True,
+                    teacher__is_active=True,
+                ).exists()
+
+            if has_current_teachers and not current_teacher:
+                self.add_error("current_teacher", "Выберите текущего преподавателя для замены.")
+
+        if current_teacher and requested_teacher and current_teacher == requested_teacher:
+            self.add_error("requested_teacher", "Новый преподаватель должен отличаться от текущего.")
 
         return cleaned

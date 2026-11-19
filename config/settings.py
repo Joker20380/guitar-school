@@ -258,7 +258,7 @@ JAZZMIN_SETTINGS = {
     "site_header": "Phoenix Song",
     "site_brand": "Phoenix Song",
     "site_logo": "images/phoenix-admin-mark.svg",
-    "site_icon": "images/phoenix-admin-mark.svg",
+    "site_icon": "images/branding/phoenix-emblem-60.webp",
     "site_logo_classes": "",
     "welcome_sign": "Управление гитарной школой",
     "copyright": "Phoenix Song",

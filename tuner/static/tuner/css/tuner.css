@@ -4,6 +4,7 @@
   min-height: 100vh;
   padding: 94px 16px 32px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: start center;
   background:
     radial-gradient(circle at top left, rgba(214, 168, 79, .10), transparent 34rem),
@@ -13,6 +14,7 @@
 
 .tuner-card {
   width: min(960px, 100%);
+  min-width: 0;
   padding: clamp(14px, 2.4vw, 24px);
   border: 1px solid var(--line);
   background:
@@ -263,6 +265,7 @@
 
 .side-instruments {
   display: grid;
+  min-width: 0;
   grid-template-rows: auto 1fr;
   gap: 12px;
 }
@@ -271,6 +274,7 @@
 
 .string-display,
 .vu-meter {
+  min-width: 0;
   padding: 12px;
   border: 1px solid rgba(214, 168, 79, .24);
   background:
@@ -285,11 +289,11 @@
 .side-title,
 .vu-labels {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 6px;
   align-items: center;
   margin-bottom: 8px;
-  color: rgba(58, 47, 33, .68);
+  color: var(--muted);
   font-size: 10px;
   font-weight: 900;
   letter-spacing: .1em;
@@ -309,10 +313,20 @@
 
 .side-title strong,
 .vu-labels strong {
-  color: #7a4f1d;
+  color: var(--accent-soft);
   font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 400;
+}
+
+.stability-meter .vu-labels {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stability-meter .vu-labels strong {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  text-align: center;
 }
 
 .string-readout {
@@ -885,7 +899,7 @@
   }
 
   .side-instruments {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: auto;
   }
 
@@ -1053,6 +1067,7 @@
 
 .metronome-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -1090,7 +1105,7 @@
 
 .metronome-tempo {
   display: grid;
-  grid-template-columns: 48px minmax(120px, 1fr) 48px;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
   align-items: center;
   gap: 8px;
 }
@@ -1113,13 +1128,16 @@
 
 .tempo-value {
   display: flex;
+  min-width: 0;
   align-items: baseline;
   justify-content: center;
   gap: 7px;
 }
 
-.tempo-value input {
+#tempoInput {
   width: 88px;
+  min-width: 0;
+  min-height: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1210,7 +1228,7 @@
 
 @media (max-width: 720px) {
   .metronome-display {
-    grid-template-columns: 1fr 100px;
+    grid-template-columns: minmax(0, 1fr) 100px;
   }
 
   .metronome-beats {
@@ -1224,7 +1242,17 @@
   }
 
   .metronome-display {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tempo-value {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  #tempoInput {
+    text-align: center;
   }
 
   .metronome-beats {

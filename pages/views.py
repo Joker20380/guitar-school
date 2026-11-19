@@ -5,11 +5,16 @@ from django.http import HttpResponseForbidden
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import get_language
+from django.templatetags.static import static
 from config.i18n import bilingual as bt
 from courses.models import CourseEnrollment
 from .content import HOME_COPY
 from .models import Review
 from .forms import ReviewForm
+
+
+def favicon(request):
+    return redirect(static("images/branding/phoenix-emblem-60.webp"), permanent=True)
 
 
 def home(request):

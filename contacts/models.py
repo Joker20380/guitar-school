@@ -54,7 +54,7 @@ class ContactMessage(models.Model):
     )
 
     subject = models.CharField("Тема", max_length=180, blank=True)
-    message = models.TextField("Сообщение")
+    message = models.TextField("Сообщение", blank=True)
 
     status = models.CharField("Статус", max_length=32, choices=STATUS_CHOICES, default=STATUS_NEW)
 

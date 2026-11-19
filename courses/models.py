@@ -64,6 +64,7 @@ class Course(models.Model):
     )
 
     is_active = models.BooleanField("Показывать на сайте", default=True)
+    is_advertised = models.BooleanField("Рекламировать публично", default=False, help_text="Не влияет на доступ уже зачисленных учеников.")
     sort_order = models.PositiveIntegerField("Порядок", default=100)
 
     created_at = models.DateTimeField("Создан", auto_now_add=True)
@@ -187,8 +188,8 @@ class CourseRequest(models.Model):
 
     VERIFY_CHOICES = [
         (VERIFY_EMAIL, "Email"),
-        (VERIFY_PHONE, "Телефон"),
-        (VERIFY_MESSENGER, "Мессенджер"),
+        (VERIFY_PHONE, bt("Phone", "Телефон")),
+        (VERIFY_MESSENGER, bt("Messenger", "Мессенджер")),
     ]
 
     course = models.ForeignKey(
@@ -321,7 +322,7 @@ class CourseEnrollment(models.Model):
 
     @property
     def can_activate_invitation(self):
-        return self.has_access and not self.invitation_used_at and not self.invitation_is_expired
+        return self.has_access and not self.invitation_used_at and not self.activated_at and not self.invitation_is_expired
 
     def progress_percent(self):
         total = self.course.lessons.filter(is_published=True).count()

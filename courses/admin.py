@@ -52,7 +52,7 @@ class LessonMaterialInline(admin.StackedInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ("title", "level", "format", "is_active", "sort_order", "updated_at")
+    list_display = ("title", "level", "format", "is_active", "is_advertised", "sort_order", "updated_at")
     list_filter = ("level", "format", "is_active")
     list_editable = ("is_active", "sort_order")
     search_fields = ("title", "short_description", "description")

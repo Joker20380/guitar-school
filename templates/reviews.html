@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% load copy %}
+{% block title %}{% b 'Student reviews | Phoenix Song' 'Отзывы учеников | Phoenix Song' %}{% endblock %}
+{% block content %}<section class="section"><div class="container"><header class="section-heading"><span class="section-kicker">Phoenix Song</span><h1>{% b 'Student voices' 'Голоса учеников' %}</h1></header>
+{% if reviews %}<div class="review-grid">{% for review in reviews %}<figure class="review-card"><blockquote>{{ review.text|linebreaksbr }}</blockquote><figcaption>{% if review.photo %}<img src="{{ review.photo.url }}" width="48" height="48" loading="lazy" alt="">{% endif %}{{ review.name }}</figcaption></figure>{% endfor %}</div>{% else %}<p>{% b 'Published reviews will appear here.' 'Здесь появятся опубликованные отзывы.' %}</p>{% endif %}
+{% if user.is_authenticated %}<p class="section-actions"><a class="btn btn-outline" href="{% url 'pages:submit_review' %}">{% b 'Write a review' 'Оставить отзыв' %}</a></p>{% endif %}
+</div></section>{% endblock %}

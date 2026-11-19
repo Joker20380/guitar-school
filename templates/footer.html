@@ -1,27 +1,6 @@
-{% load static %}
-<footer class="site-footer" id="contact">
-  <section class="footer-cta"><div class="container"><div class="footer-cta-inner reveal">
-    <h2>Your first lesson is free</h2><p>Curious about Russian through music, or simply want to play guitar? Meet your teacher online and try an individual lesson.</p>
-    <div class="footer-actions">
-      <a class="btn btn-primary" href="/contacts/#contact-form">Book your first free lesson</a>
-      <a class="btn btn-outline" href="/tuner/">Guitar tuner</a>
-    </div>
-  </div></div></section>
-  <div class="footer-links"><div class="container">
-    <a class="footer-brand" href="/" aria-label="Phoenix Song — Home">
-      <img src="{% static 'images/branding/phoenix-emblem-220.webp' %}"
-           srcset="{% static 'images/branding/phoenix-emblem-440.webp' %} 2x"
-           width="220" height="267" alt="Phoenix Song" loading="lazy" decoding="async">
-    </a>
-    <nav aria-label="Footer navigation"><a href="/">Home</a><a href="/courses/teachers/">Teachers</a><a href="/journal/">Music Journal</a><a href="/contacts/">Contact</a></nav>
-    <div class="footer-socials" aria-label="Contact and social links">
-      <a href="tel:+79161712233" aria-label="Call +7 916 171 2233" title="Call">☎</a>
-      <a href="https://t.me/elya_pokrovskaya" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram">➤</a>
-      <a href="https://wa.me/79161712233" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">◉</a>
-      <span class="footer-phone">+7 916 171 2233</span>
-    </div>
-  </div></div>
-  <div class="footer-bottom"><div class="container footer-bottom-inner">
-    <span>© {% now "Y" %} Phoenix Song</span><span>Guitar · Music · Russian through songs</span>
-  </div></div>
-</footer>
+{% load static copy %}
+<footer class="site-footer"><div class="container footer-grid">
+  <div class="footer-identity"><a href="/" aria-label="Phoenix Song"><img src="{% static 'images/branding/phoenix-footer-640.webp' %}" width="280" height="140" alt="Phoenix Song Music School" loading="lazy"></a><p>{% b 'Guitar · Music · Russian through songs' 'Гитара · Музыка · Русский через песни' %}</p></div>
+  <nav aria-label="{% b 'Footer navigation' 'Меню в подвале' %}"><a href="/">{% b 'Home' 'Главная' %}</a><a href="/journal/">{% b 'music blog' 'Наш блог' %}</a><a href="/courses/my/">{% b 'Student area' 'Кабинет' %}</a><a href="/contacts/">{% b 'Contact' 'Контакты' %}</a><a href="/tuner/">{% b 'Guitar tuner' 'Тюнер для гитары' %}</a></nav>
+  <div class="footer-contact"><a class="phone" href="tel:+79161712233">{{ public_phone }}</a><a href="mailto:{{ public_email }}">{{ public_email }}</a><div class="social-links"><a href="https://wa.me/79161712233" rel="noopener">WhatsApp</a>{% if public_telegram %}<a href="{{ public_telegram }}" rel="noopener">Telegram</a>{% endif %}</div><a class="btn btn-primary compact" href="{% url 'contacts:trial' %}">{% b 'Book a lesson' 'Записаться' %}</a></div>
+</div><div class="container footer-bottom"><span>© {% now 'Y' %} Phoenix Song</span><span>{% b 'Online. Personal. Without borders.' 'Онлайн. Лично. Без границ.' %}</span></div></footer>

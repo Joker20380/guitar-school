@@ -49,6 +49,15 @@ class AuditRegressionTests(TestCase):
         self.assertIsNone(self.enrollment.invitation_used_at)
         self.assertTrue(self.user.check_password("Before-934!"))
 
+    def test_legacy_activation_before_used_timestamp_field_is_also_consumed(self):
+        self.enrollment.activated_at = timezone.now()
+        self.enrollment.save()
+        self.assertFalse(self.enrollment.can_activate_invitation)
+        response = self.client.post(reverse("courses:activate", args=[self.enrollment.invitation_token]), {"new_password1": "Replay-password-194!", "new_password2": "Replay-password-194!"})
+        self.assertRedirects(response, reverse("login"))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("Before-934!"))
+
     def test_unicode_names_in_all_remaining_contact_forms(self):
         for name in ["Élodie", "José", "Müller", "Елена", "José 李", "E\u0301lodie", "O’Connor"]:
             with self.subTest(name=name):

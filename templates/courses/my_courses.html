@@ -16,6 +16,7 @@
       <p>Courses available to you appear here.</p>
     </header>
 
+    <p><a class="btn btn-outline" href="{% url 'pages:submit_review' %}">Write a review</a></p>
     {% if enrollments %}
       <div class="course-grid">
         {% for enrollment in enrollments %}

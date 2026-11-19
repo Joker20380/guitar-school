@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Music Journal | Phoenix Song{% endblock %}
+{% block title %}music blog | Phoenix Song{% endblock %}
 {% block description %}Stories, guitar practice, songs and ideas from Phoenix Song Music School.{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'journal/css/journal.css' %}">{% endblock %}
 {% block content %}
 <section class="journal-page"><div class="container">
-  <header class="journal-hero"><span class="section-kicker">Phoenix Song</span><h1>Music Journal</h1><p>Stories, guitar practice, songs and ideas from our music community.</p></header>
+  <header class="journal-hero"><span class="section-kicker">Phoenix Song</span><h1>music blog</h1><p>Your guide to music from around the world. Discover artists, explore musical cultures, learn fascinating facts, get useful musical tips and find inspiration!</p></header>
   {% if articles %}<div class="journal-grid">
     {% for article in articles %}<article class="journal-card">
       {% if article.photo %}<a href="{{ article.get_absolute_url }}"><img src="{{ article.photo }}" alt="{{ article.title }}" loading="lazy"></a>{% endif %}
-      <div class="journal-card-body"><span class="journal-card-date">{{ article.published_at|date:"F j, Y" }}</span><h2><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h2>{% if article.excerpt %}<p>{{ article.excerpt }}</p>{% endif %}<a class="journal-read-more" href="{{ article.get_absolute_url }}">Read article →</a></div>
+      <div class="journal-card-body"><span class="journal-card-date">{{ article.published_at|date:"F j, Y" }}</span><h2><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h2>{% if article.excerpt %}<p>{{ article.excerpt }}</p>{% endif %}<a class="journal-read-more" href="{{ article.get_absolute_url }}">Read article</a></div>
     </article>{% endfor %}
-  </div>{% else %}<div class="journal-empty"><h2>Articles are coming soon</h2><p>We are preparing the first stories for the journal.</p></div>{% endif %}
+  </div>{% else %}<div class="journal-empty"><h2>Articles are coming soon</h2><p>We are preparing the first stories for the blog.</p></div>{% endif %}
 </div></section>
 {% endblock %}

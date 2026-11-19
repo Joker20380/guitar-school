@@ -17,6 +17,7 @@ MESSENGER_RE = re.compile(r"^@?[A-Za-z0-9_][A-Za-z0-9_.\-]{2,78}$")
 
 
 class CourseRequestForm(forms.ModelForm):
+    preferred_format = forms.ChoiceField(required=False, label=bt("Format", "Формат"), choices=[("", bt("Choose a format", "Выберите формат")), ("online", bt("Online", "Онлайн"))])
     phone = PhoneNumberField(
         required=False,
         region="BE",

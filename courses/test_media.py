@@ -191,6 +191,7 @@ class MediaTests(TestCase):
         self.assertEqual(form.save().cover_url, "https://example.com/cover.jpg")
 
     def test_student_resources_are_rendered_in_both_languages_and_public_pages_hide_them(self):
+        self.course.is_advertised = True
         CourseMaterial.objects.create(course=self.course, title="External folder", external_url="https://example.com/folder")
         CourseMaterial.objects.create(course=self.course, title="Hidden resource", external_url="https://example.com/hidden", is_published=False)
         LessonMaterial.objects.create(lesson=self.lesson, title="Hidden lesson resource", external_url="https://example.com/hidden-lesson", is_published=False)

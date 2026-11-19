@@ -10,6 +10,7 @@
   </header>
   <form method="post" class="form-card" data-trial-form novalidate>
     {% csrf_token %}{{ form.submission_token }}{{ form.website }}
+    <div class="form-errors" role="alert" tabindex="-1" data-dynamic-errors hidden></div>
     {% if form.errors %}<div class="form-errors" role="alert" tabindex="-1" data-error-summary><h2>{% b 'Please check your request' 'Проверь заявку' %}</h2>{{ form.non_field_errors }}{% if form.website.errors or form.submission_token.errors %}<p>{% b 'Please reload this form and try again.' 'Обнови форму и попробуй снова.' %}</p>{% endif %}</div>{% endif %}
     {% for field in form.visible_fields %}
     <div class="field"{% if field.name == 'telegram' %} data-contact-field="telegram"{% elif field.name == 'other_contact' %} data-contact-field="other"{% endif %}>

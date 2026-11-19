@@ -41,13 +41,15 @@
             {% endif %}
         {% endif %}
         <div class="input-group mb-3">
-            <input type="text" name="username" class="form-control" placeholder="{{ form.username.label }}" required>
+            <label for="id_username" class="visually-hidden">{{ form.username.label }}</label>
+            <input id="id_username" type="text" name="username" autocomplete="username" class="form-control" placeholder="{{ form.username.label }}" required>
             <span class="input-group-text">
                 <i class="fas fa-user"></i>
             </span>
         </div>
         <div class="input-group mb-3">
-            <input type="password" name="password" class="form-control" placeholder="{{ form.password.label }}" required>
+            <label for="id_password" class="visually-hidden">{{ form.password.label }}</label>
+            <input id="id_password" type="password" name="password" autocomplete="current-password" class="form-control" placeholder="{{ form.password.label }}" required>
             <span class="input-group-text">
                 <i class="fas fa-lock"></i>
             </span>

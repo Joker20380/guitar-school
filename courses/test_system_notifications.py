@@ -10,6 +10,7 @@ from .models import Course, CourseEnrollment
 
 class SystemNotificationTests(TestCase):
     def setUp(self):
+        self.client.cookies["phoenix_songs_language"] = "ru"
         self.user = get_user_model().objects.create_user(
             username="expired-student",
             password="test-password",

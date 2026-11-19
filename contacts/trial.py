@@ -7,7 +7,9 @@ from django.conf import settings
 from django.core import signing
 from django.core.exceptions import ValidationError
 from django.db import DatabaseError, transaction
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from phonenumber_field.formfields import PhoneNumberField
 
@@ -18,6 +20,13 @@ from .notifications import notify_trial
 
 logger = logging.getLogger(__name__)
 TOKEN_SALT = "phoenix-trial-submission-v1"
+
+
+def saved_response(request):
+    request.session["trial_success"] = True
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"saved": True, "redirect": reverse("contacts:trial_success")})
+    return redirect("contacts:trial_success")
 
 
 class TrialForm(forms.ModelForm):
@@ -73,6 +82,7 @@ class TrialForm(forms.ModelForm):
 
 
 def trial_page(request):
+    response_status = 400
     session_marker = request.session.get("trial_session_marker")
     if not session_marker:
         session_marker = uuid.uuid4().hex
@@ -91,8 +101,7 @@ def trial_page(request):
                 try:
                     existing = ContactMessage.objects.filter(submission_key=submission_key).first()
                     if existing:
-                        request.session["trial_success"] = True
-                        return redirect("contacts:trial_success")
+                        return saved_response(request)
                     last_sent = request.session.get("trial_last_sent", 0)
                     if timezone.now().timestamp() - last_sent < 30:
                         form.add_error(None, bt("Please wait 30 seconds before a new request.", "Подождите 30 секунд перед новой заявкой."))
@@ -103,9 +112,9 @@ def trial_page(request):
                         if created:
                             notify_trial(entry)
                         request.session["trial_last_sent"] = timezone.now().timestamp()
-                        request.session["trial_success"] = True
-                        return redirect("contacts:trial_success")
+                        return saved_response(request)
                 except DatabaseError:
+                    response_status = 503
                     logger.warning("Trial persistence failed")
                     form.add_error(None, bt("We could not save your request. Your details are still here; please try again.", "Не удалось сохранить заявку. Ваши данные остались в форме; попробуйте ещё раз."))
     else:
@@ -114,6 +123,8 @@ def trial_page(request):
             direction = ""
         token = signing.dumps({"key": uuid.uuid4().hex, "session": session_marker}, salt=TOKEN_SALT)
         form = TrialForm(initial={"direction": direction, "submission_token": token})
+    if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"saved": False, "errors": form.errors.get_json_data()}, status=response_status)
     return render(request, "contacts/trial.html", {"form": form})
 
 

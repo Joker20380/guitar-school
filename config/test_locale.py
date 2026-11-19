@@ -1,15 +1,15 @@
-from django.test import SimpleTestCase, override_settings
+from django.test import TestCase, override_settings
 
 
 @override_settings(ROOT_URLCONF="config.urls")
-class PublicLocaleMiddlewareTests(SimpleTestCase):
+class PublicLocaleMiddlewareTests(TestCase):
     def test_browser_language_does_not_override_english_default(self):
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="ru-RU,ru;q=0.9")
         self.assertEqual(response.headers["Content-Language"], "en")
-        self.assertContains(response, "Individual guitar")
+        self.assertContains(response, "Find your path")
 
     def test_explicit_russian_cookie_is_respected(self):
         self.client.cookies["phoenix_songs_language"] = "ru"
         response = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en-US,en;q=0.9")
         self.assertEqual(response.headers["Content-Language"], "ru")
-        self.assertContains(response, "Индивидуальные уроки")
+        self.assertContains(response, "Найди свой путь")

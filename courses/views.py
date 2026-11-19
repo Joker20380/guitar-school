@@ -1,3 +1,4 @@
+from config.i18n import bilingual as bt
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
@@ -89,7 +90,7 @@ def send_course_request_notification(course_request):
 
 
 def course_list(request):
-    courses = Course.objects.filter(is_active=True).order_by("sort_order", "title")
+    courses = Course.objects.filter(is_active=True, is_advertised=True).order_by("sort_order", "title")
 
     return render(request, "courses/course_list.html", {
         "courses": courses,
@@ -98,6 +99,10 @@ def course_list(request):
 
 def course_detail(request, slug):
     course = get_object_or_404(Course, slug=slug, is_active=True)
+    if not course.is_advertised:
+        if request.user.is_authenticated and resolve_course_access(request.user, slug).allowed:
+            return redirect("courses:student_course", slug=slug)
+        return redirect("contacts:trial")
     lessons = course.lessons.filter(is_published=True).order_by("sort_order", "id")
     form = CourseRequestForm(initial={
         "preferred_format": course.format,
@@ -122,7 +127,7 @@ def course_apply(request, slug):
     if last_ts and now_ts - float(last_ts) < REQUEST_COOLDOWN_SECONDS:
         messages.error(
             request,
-            "Заявка уже была отправлена недавно. Попробуйте ещё раз чуть позже.",
+            bt('You recently sent a request. Please wait before trying again.', 'Заявка уже была отправлена недавно. Попробуйте ещё раз чуть позже.'),
         )
         return redirect(course.get_absolute_url())
 
@@ -143,17 +148,17 @@ def course_apply(request, slug):
                     raise RuntimeError("Email backend did not accept the message")
                 messages.success(
                     request,
-                    "Заявка создана. Почтовый сервис принял письмо подтверждения; доставка не подтверждена.",
+                    bt('Your request is saved. The email service accepted the confirmation message; delivery is not confirmed.', 'Заявка создана. Почтовый сервис принял письмо подтверждения; доставка не подтверждена.'),
                 )
             except Exception:
                 messages.warning(
                     request,
-                    "Заявка создана, но письмо подтверждения не отправилось. Мы проверим заявку вручную.",
+                    bt('Your request is saved, but the confirmation email failed. We will review your request manually.', 'Заявка создана, но письмо подтверждения не отправилось. Мы проверим заявку вручную.'),
                 )
         else:
             messages.success(
                 request,
-                "Заявка создана. Мы подтвердим её через выбранный телефон или мессенджер.",
+                bt('Your request is saved. We will confirm it using your phone or messenger.', 'Заявка создана. Мы подтвердим её через выбранный телефон или мессенджер.'),
             )
 
         try:
@@ -161,14 +166,14 @@ def course_apply(request, slug):
         except Exception:
             messages.warning(
                 request,
-                "Заявка сохранена, но служебное уведомление школе не отправилось.",
+                bt('Your request is saved, but the additional school notification failed.', 'Заявка сохранена, но служебное уведомление школе не отправилось.'),
             )
 
         return redirect(course.get_absolute_url())
 
     messages.error(
         request,
-        "Проверьте поля формы. Некоторые данные заполнены некорректно.",
+        bt('Please check the highlighted fields.', 'Проверьте поля формы. Некоторые данные заполнены некорректно.'),
     )
 
     return render(request, "courses/course_detail.html", {
@@ -186,10 +191,10 @@ def verify_course_request(request, token):
             max_age=VERIFY_MAX_AGE_SECONDS,
         )
     except signing.SignatureExpired:
-        messages.error(request, "Ссылка подтверждения устарела. Отправьте заявку ещё раз.")
+        messages.error(request, bt('The confirmation link has expired. Please submit a new request.', 'Ссылка подтверждения устарела. Отправьте заявку ещё раз.'))
         return redirect("courses:list")
     except signing.BadSignature:
-        messages.error(request, "Некорректная ссылка подтверждения.")
+        messages.error(request, bt('Invalid confirmation link.', 'Некорректная ссылка подтверждения.'))
         return redirect("courses:list")
 
     course_request = get_object_or_404(CourseRequest, id=data.get("request_id"))
@@ -201,7 +206,7 @@ def verify_course_request(request, token):
 
     messages.success(
         request,
-        "Заявка подтверждена. Теперь преподаватель сможет открыть вам доступ к курсу.",
+        bt('Your request is confirmed. A teacher can now grant access to the course.', 'Заявка подтверждена. Теперь преподаватель сможет открыть вам доступ к курсу.'),
     )
 
     return redirect(course_request.course.get_absolute_url())
@@ -214,20 +219,20 @@ def activate_student_account(request, token):
         invitation_token=token,
     )
 
-    if enrollment.invitation_used_at:
-        messages.info(request, "Приглашение уже использовано. Войдите в личный кабинет.")
+    if enrollment.invitation_used_at or enrollment.activated_at:
+        messages.info(request, bt('This invitation has already been used. Please sign in.', 'Приглашение уже использовано. Войдите в личный кабинет.'))
         return redirect("login")
 
     if enrollment.invitation_is_expired:
-        messages.error(request, "Срок действия приглашения истёк. Запросите новое приглашение у школы.")
+        messages.error(request, bt('This invitation has expired. Please request a new one from the school.', 'Срок действия приглашения истёк. Запросите новое приглашение у школы.'))
         return redirect("courses:list")
 
     if not enrollment.has_access:
-        messages.error(request, "Доступ к курсу истёк или был отозван.")
+        messages.error(request, bt('Your course access has expired or been revoked.', 'Доступ к курсу истёк или был отозван.'))
         return redirect("courses:list")
 
     if not enrollment.user:
-        messages.error(request, "Аккаунт ученика ещё не создан. Свяжитесь с преподавателем.")
+        messages.error(request, bt('Your student account is not ready yet. Please contact your teacher.', 'Аккаунт ученика ещё не создан. Свяжитесь с преподавателем.'))
         return redirect(enrollment.course.get_absolute_url())
 
     if request.method == "POST":
@@ -245,7 +250,7 @@ def activate_student_account(request, token):
 
             login(request, enrollment.user)
 
-            messages.success(request, "Аккаунт активирован. Добро пожаловать в курс.")
+            messages.success(request, bt('Account activated. Welcome to the course.', 'Аккаунт активирован. Добро пожаловать в курс.'))
             return redirect("courses:student_course", slug=enrollment.course.slug)
     else:
         form = SetPasswordForm(enrollment.user)
@@ -441,12 +446,12 @@ def request_teacher(request, slug):
 
         messages.success(
             request,
-            "Заявка отправлена. Администратор школы рассмотрит её и назначит преподавателя.",
+            bt('Your request is saved. The school will review it and assign a teacher.', 'Заявка отправлена. Администратор школы рассмотрит её и назначит преподавателя.'),
         )
     else:
         messages.error(
             request,
-            "Проверьте заявку. Нужно выбрать преподавателя и тип заявки.",
+            bt('Please choose a teacher and a request type.', 'Проверьте заявку. Нужно выбрать преподавателя и тип заявки.'),
         )
 
     return redirect("courses:my_course_teachers", slug=slug)

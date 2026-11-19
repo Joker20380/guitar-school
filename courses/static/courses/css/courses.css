@@ -1,11 +1,8 @@
 .courses-page,
 .course-detail-page {
   min-height: 100vh;
-  padding: 116px 0 70px;
-  background:
-    radial-gradient(circle at top left, rgba(214, 168, 79, .10), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(124, 139, 111, .10), transparent 30rem),
-    linear-gradient(180deg, #0f1110 0%, #141713 52%, #0b0d0c 100%);
+  padding: 72px 0;
+  background: var(--bg);
 }
 
 .courses-hero {
@@ -14,7 +11,8 @@
   text-align: center;
 }
 
-.section-kicker {
+.courses-page .section-kicker,
+.course-detail-page .section-kicker {
   margin: 0 0 8px;
   color: var(--accent);
   font-family: var(--font-heading);
@@ -27,9 +25,9 @@
 .course-main h1 {
   margin: 0;
   color: var(--text);
-  font-size: clamp(42px, 7vw, 78px);
-  line-height: .95;
-  text-transform: uppercase;
+  font-size: clamp(32px, 5vw, 60px);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .courses-hero p,

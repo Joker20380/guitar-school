@@ -5,8 +5,8 @@
 {% block extra_css %}<link rel="stylesheet" href="{% static 'journal/css/journal.css' %}">{% endblock %}
 {% block content %}
 <article class="journal-article"><div class="container journal-article-inner">
-  <a class="journal-back" href="{% url 'journal:article_list' %}">← Музыкальный журнал</a>
-  <span class="section-kicker">Музыкальный журнал</span><h1>{{ article.title_ru|default:article.title }}</h1>
+  <a class="journal-back" href="{% url 'journal:article_list' %}">Наш блог</a>
+  <span class="section-kicker">Наш блог</span><h1>{{ article.title_ru|default:article.title }}</h1>
   {% if article.published_at %}<p class="journal-article-date">{{ article.published_at|date:"j E Y" }}</p>{% endif %}
   {% if article.photo %}<img class="journal-article-photo" src="{{ article.photo }}" alt="{{ article.title_ru|default:article.title }}">{% endif %}
   {% if article.video_embed_url %}<div class="journal-video"><iframe src="{{ article.video_embed_url }}" title="{{ article.title_ru|default:article.title }}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>{% endif %}

@@ -11,6 +11,7 @@ from .models import Course, CourseEnrollment, Lesson, LessonProgress
 
 class CourseAccessSecurityTests(TestCase):
     def setUp(self):
+        self.client.cookies["phoenix_songs_language"] = "ru"
         self.user = get_user_model().objects.create_user(
             username="student@example.com",
             password="old-test-password",
@@ -71,6 +72,7 @@ class CourseAccessSecurityTests(TestCase):
 
 class InvitationSecurityTests(TestCase):
     def setUp(self):
+        self.client.cookies["phoenix_songs_language"] = "ru"
         self.user = get_user_model().objects.create_user(username="invited@example.com")
         self.user.set_unusable_password()
         self.user.save(update_fields=["password"])

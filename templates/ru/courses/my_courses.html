@@ -16,6 +16,7 @@
       <p>Здесь отображаются курсы, к которым вам открыт доступ.</p>
     </header>
 
+    <p><a class="btn btn-outline" href="{% url 'pages:submit_review' %}">Оставить отзыв</a></p>
     {% if enrollments %}
       <div class="course-grid">
         {% for enrollment in enrollments %}

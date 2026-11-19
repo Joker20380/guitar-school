@@ -1,41 +1,20 @@
-{% extends "base.html" %}
-{% block title %}Online Guitar Lessons | Phoenix Song{% endblock %}
-{% block description %}Individual online guitar lessons: technique, chords, rhythm, singing and songs you love. Your first lesson is free. Russian through music is available as an option.{% endblock %}
+{% extends 'base.html' %}{% load static copy %}
+{% block title %}{% b 'Find your path in music | Phoenix Song' 'Найди свой путь в музыке | Phoenix Song' %}{% endblock %}
 {% block content %}
-<section class="home-section home-page hero">
-  <div class="container"><div class="hero-inner reveal">
-    <span class="hero-kicker">Phoenix Song · Individual online lessons</span>
-    <h1 class="home-hero-title">Individual guitar<br>lessons online</h1>
-    <p>Build your technique, play the songs you love and sing with confidence. Choose your own pace, goals and sound. Russian through music is available if you want it, with English subtitles to help you follow.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="/contacts/#contact-form">Book your first free lesson</a>
-    </div>
-  </div></div>
-</section>
-<section class="home-section section" id="program">
-  <div class="container">
-    <div class="section-title reveal"><span class="section-kicker">The Phoenix Song method</span>
-      <h2>Your songs. Your pace. Your teacher.</h2><p>Every lesson is individual and shaped around your interests, experience and musical goals. Add singing or Russian through songs whenever it helps you learn.</p>
-    </div><div class="grid-3">
-<article class="feature-card reveal"><span>01</span><h3>Guitar & singing</h3><p>Build comfortable hand position, rhythm and chords. Learn to play and sing songs you enjoy, with guidance from your teacher.</p></article>
-<article class="feature-card reveal"><span>02</span><h3>Songs and singing</h3><p>Turn technique into real music. Learn songs you love, practise rhythm and singing, and build confidence with your teacher.</p></article>
-<article class="feature-card reveal"><span>03</span><h3>Russian through music — optional</h3><p>If you choose it, Russian songs and English AI subtitles add language and culture to your guitar lessons without getting in the way of your musical goals.</p></article>
-    </div>
-  </div>
-</section>
-<section class="home-section band-section" id="steps">
-  <div class="container">
-    <div class="section-title reveal"><span class="section-kicker">How lessons work</span><h2>From your first song to your own sound</h2><p class="section-actions"><a class="btn btn-outline" href="#steps">Learn how lessons work</a></p></div>
-    <div class="timeline">
-<div class="timeline-item reveal"><div class="timeline-num">1</div><div class="timeline-content"><h3>Start with a free lesson</h3><p>Meet your teacher online, talk about your goals and try the format. Your first lesson is completely free.</p></div></div>
-<div class="timeline-item reveal"><div class="timeline-num">2</div><div class="timeline-content"><h3>Choose music you love</h3><p>Together, choose songs and a learning plan that suits your level. Focus on guitar, singing and the skills you want to build.</p></div></div>
-<div class="timeline-item reveal"><div class="timeline-num">3</div><div class="timeline-content"><h3>Build your skills, one lesson at a time</h3><p>Work individually with your teacher on technique, songs and confidence. All lessons take place online.</p></div></div>
-    </div>
-  </div>
-</section>
-<section class="home-section section" id="community">
-  <div class="container"><div class="section-title reveal">
-    <span class="section-kicker">An international music community</span><h2>Music connects us, wherever we are</h2><p>Our students already join from New York, Boston, Singapore and beyond. Phoenix Song brings together individual teaching, songs, practice and modern musical tools in one learning space.</p>
-  </div></div>
-</section>
+<section class="hero" id="welcome"><div class="container hero-inner">
+  <div class="hero-copy"><p class="section-kicker">{% b 'PHOENIX SONG · MUSIC WITHOUT BORDERS' 'PHOENIX SONG · МУЗЫКА БЕЗ ГРАНИЦ' %}</p>
+  <h1>{% b 'Find your path' 'Найди свой путь' %}<br><em>{% b 'in music' 'в музыке' %}</em></h1>
+  <p class="hero-lead">{{ copy.hero }}</p>
+  {% include 'home_actions.html' %}
+  </div><div class="hero-caption" aria-hidden="true">{% b 'A song. A language. Your own voice.' 'Песня. Язык. Твой собственный голос.' %}</div>
+</div></section>
+<section class="section directions" id="directions"><div class="container"><header class="section-heading"><span class="section-kicker">{% b 'Choose what moves you' 'Выбирай то, что откликается' %}</span><h2>{% b 'Two directions. Your own journey.' 'Два направления. Твой собственный путь.' %}</h2><p>{{ copy.directions }}</p></header>
+<div class="direction-grid">
+  <article class="direction-card"><span class="direction-symbol" aria-hidden="true">Aa / Аа</span><p class="section-kicker">{% b 'Language & culture' 'Язык и культура' %}</p><h3>{% b 'Russian through music' 'Русский язык через музыку' %}</h3><p>{{ copy.russian }}</p><div class="card-action"><a class="btn btn-primary" href="{% url 'contacts:trial' %}?direction=russian">{% b 'I want a trial lesson' 'Хочу пробный урок' %}</a><p class="free-note"><span aria-hidden="true">✦</span> {% b 'Your first lesson is free' 'Первый урок — бесплатно' %}</p></div></article>
+  <article class="direction-card"><span class="direction-symbol" aria-hidden="true">♫</span><p class="section-kicker">{% b 'Sound & self-expression' 'Звучание и самовыражение' %}</p><h3>{% b 'Guitar and musical creativity' 'Гитара и музыкальное творчество' %}</h3><p>{{ copy.guitar }}</p><div class="card-action"><a class="btn btn-primary" href="{% url 'contacts:trial' %}?direction=guitar">{% b 'I want a trial lesson' 'Хочу пробный урок' %}</a><p class="free-note"><span aria-hidden="true">✦</span> {% b 'Your first lesson is free' 'Первый урок — бесплатно' %}</p></div></article>
+</div></div></section>
+<section class="section story" id="story"><div class="container story-grid"><div class="story-art"><img src="{% static 'images/branding/phoenix-emblem-440.webp' %}" width="440" height="534" alt="{% b 'A phoenix with a guitar' 'Феникс с гитарой' %}" loading="lazy"></div><div class="story-copy"><span class="section-kicker">{% b 'The story behind the name' 'История за названием' %}</span><h2>{% b 'Why Phoenix Song?' 'Почему Phoenix Song?' %}</h2><p>{{ copy.story }}</p><div class="story-rule"></div><p class="story-signature">Phoenix Song</p></div></div></section>
+<section class="section community" id="community"><div class="container narrow"><span class="section-kicker">{% b 'An international community' 'Международное сообщество' %}</span><h2>{% b 'Music connects us, wherever we are' 'Музыка объединяет, где бы ты ни был' %}</h2><p>{{ copy.community }}</p><a class="text-link" href="/journal/">{% b 'Explore our music blog' 'Открыть наш блог' %}</a></div></section>
+{% if reviews %}<section class="section reviews" id="reviews"><div class="container"><header class="section-heading"><span class="section-kicker">{% b 'Student voices' 'Голоса учеников' %}</span><h2>{% b 'Music, in their own words' 'О музыке своими словами' %}</h2></header><div class="review-grid">{% for review in reviews %}<figure class="review-card"><blockquote>{{ review.text|linebreaksbr }}</blockquote><figcaption>{% if review.photo %}<img src="{{ review.photo.url }}" alt="" width="48" height="48" loading="lazy">{% endif %}{{ review.name }}</figcaption></figure>{% endfor %}</div></div></section>{% endif %}
+<section class="section final-cta" id="start"><div class="container narrow"><span class="section-kicker">{% b 'Your first step' 'Твой первый шаг' %}</span><h2>{% b 'Start your path in music' 'Начни свой путь в музыке' %}</h2><p>{{ copy.final }}</p>{% include 'home_actions.html' %}<a class="tuner-link" href="/tuner/">{% b 'Already have a guitar? Open the tuner' 'Гитара уже под рукой? Открыть тюнер' %}</a></div></section>
 {% endblock %}

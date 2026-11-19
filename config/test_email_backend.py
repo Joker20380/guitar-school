@@ -8,8 +8,8 @@ from django.test import SimpleTestCase, override_settings
 @override_settings(
     EMAIL_BACKEND="config.email_backend.BrevoEmailBackend",
     BREVO_API_KEY="test-api-key",
-    DEFAULT_FROM_EMAIL="Школа гитары <jvov@mail.ru>",
-    BREVO_REPLY_TO="jvov@mail.ru",
+    DEFAULT_FROM_EMAIL="Школа гитары <school@example.com>",
+    BREVO_REPLY_TO="school@example.com",
 )
 class BrevoEmailBackendTests(SimpleTestCase):
     @patch("config.email_backend.urlopen")
@@ -25,8 +25,8 @@ class BrevoEmailBackendTests(SimpleTestCase):
         payload = json.loads(request.data)
         self.assertEqual(request.full_url, "https://api.brevo.com/v3/smtp/email")
         self.assertEqual(request.headers["Api-key"], "test-api-key")
-        self.assertEqual(payload["sender"]["email"], "jvov@mail.ru")
-        self.assertEqual(payload["replyTo"]["email"], "jvov@mail.ru")
+        self.assertEqual(payload["sender"]["email"], "school@example.com")
+        self.assertEqual(payload["replyTo"]["email"], "school@example.com")
         self.assertEqual(payload["to"], [{"email": "student@example.com"}])
         self.assertEqual(payload["textContent"], "Текст")
 

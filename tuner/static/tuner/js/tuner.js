@@ -223,13 +223,13 @@
       const pos = Number(segment.dataset.pos);
       const distance = Math.abs(pos);
 
-      if (abs <= 4 && pos === 0) {
-        segment.classList.add("on-lock");
+      if (abs <= 4) {
+        if (pos === 0) segment.classList.add("on-lock");
         return;
       }
 
-      if (abs <= 9 && distance <= 1) {
-        segment.classList.add("on-near");
+      if (abs <= 9) {
+        if (distance <= 1) segment.classList.add("on-near");
         return;
       }
 

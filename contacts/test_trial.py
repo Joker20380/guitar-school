@@ -102,6 +102,23 @@ class TrialTests(TestCase):
         self.assertContains(response, "form has expired")
         self.assertFalse(ContactMessage.objects.exists())
 
+    def test_ajax_validation_database_failure_and_retry_contract(self):
+        data = self.payload()
+        headers = {"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
+        invalid = self.client.post(reverse("contacts:trial"), {**data, "name": ""}, **headers)
+        self.assertEqual(invalid.status_code, 400)
+        self.assertFalse(invalid.json()["saved"])
+        with patch("contacts.trial.ContactMessage.objects.get_or_create", side_effect=DatabaseError("local failure")):
+            failed = self.client.post(reverse("contacts:trial"), data, **headers)
+        self.assertEqual(failed.status_code, 503)
+        self.assertFalse(failed.json()["saved"])
+        accepted = self.client.post(reverse("contacts:trial"), data, **headers)
+        self.assertEqual(accepted.status_code, 200)
+        self.assertTrue(accepted.json()["saved"])
+        replay = self.client.post(reverse("contacts:trial"), data, **headers)
+        self.assertEqual(replay.json(), accepted.json())
+        self.assertEqual(ContactMessage.objects.count(), 1)
+
 
 class ConcurrentTrialTests(TransactionTestCase):
     @skipUnlessDBFeature("has_select_for_update")

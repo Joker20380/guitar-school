@@ -17,12 +17,9 @@
       <article class="course-main">
         <div class="course-badges">
           <span>{{ course.get_level_display }}</span>
-          <span>{{ course.get_format_display }}</span>
+          <span>Online</span>
           {% if course.duration %}
             <span>{{ course.duration }}</span>
-          {% endif %}
-          {% if course.price %}
-            <span>{{ course.price }}</span>
           {% endif %}
         </div>
 

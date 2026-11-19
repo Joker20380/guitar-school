@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.utils import timezone
+from datetime import timedelta
 
 from .models import (
     Course,
@@ -14,22 +15,39 @@ from .models import (
     TeacherAssignment,
     TeacherRequest,
     TeacherSkill,
+    CourseMaterial,
+    LessonMaterial,
 )
+from .models import generate_access_token
 
 
 class LessonInline(admin.StackedInline):
     model = Lesson
     extra = 0
+    show_change_link = True
     fields = (
         "title",
         "short_description",
         "content",
         "video_url",
+        "video_file",
         "online_meeting_url",
         "homework",
         "sort_order",
         "is_published",
     )
+
+
+class CourseMaterialInline(admin.StackedInline):
+    model = CourseMaterial
+    extra = 0
+    fields = ("title", "file", "external_url", "sort_order", "is_published")
+
+
+class LessonMaterialInline(admin.StackedInline):
+    model = LessonMaterial
+    extra = 0
+    fields = ("title", "file", "external_url", "sort_order", "is_published")
 
 
 @admin.register(Course)
@@ -39,11 +57,12 @@ class CourseAdmin(admin.ModelAdmin):
     list_editable = ("is_active", "sort_order")
     search_fields = ("title", "short_description", "description")
     prepopulated_fields = {"slug": ("title",)}
-    inlines = (LessonInline,)
+    inlines = (CourseMaterialInline, LessonInline)
 
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
+    inlines = (LessonMaterialInline,)
     list_display = ("title", "course", "sort_order", "is_published", "created_at")
     list_filter = ("course", "is_published")
     list_editable = ("sort_order", "is_published")
@@ -54,11 +73,31 @@ class LessonAdmin(admin.ModelAdmin):
         "short_description",
         "content",
         "video_url",
+        "video_file",
         "online_meeting_url",
         "homework",
         "sort_order",
         "is_published",
     )
+
+
+@admin.register(CourseMaterial)
+class CourseMaterialAdmin(admin.ModelAdmin):
+    list_display = ("title", "course", "is_published", "sort_order")
+    list_filter = ("course", "is_published")
+    search_fields = ("title", "course__title")
+    list_editable = ("is_published", "sort_order")
+    fields = ("course", "title", "file", "external_url", "sort_order", "is_published")
+
+
+@admin.register(LessonMaterial)
+class LessonMaterialAdmin(admin.ModelAdmin):
+    list_display = ("title", "lesson", "is_published", "sort_order")
+    list_filter = ("lesson__course", "is_published")
+    search_fields = ("title", "lesson__title", "lesson__course__title")
+    list_editable = ("is_published", "sort_order")
+    autocomplete_fields = ("lesson",)
+    fields = ("lesson", "title", "file", "external_url", "sort_order", "is_published")
 
 
 @admin.register(CourseRequest)
@@ -115,12 +154,23 @@ class CourseRequestAdmin(admin.ModelAdmin):
 
     @admin.action(description="Создать аккаунт ученика и выдать доступ")
     def create_student_accounts(self, request, queryset):
-        created_count = 0
-        skipped_count = 0
+        sent_count = 0
+        skipped_without_email = 0
+        skipped_unverified = 0
+        skipped_activated = 0
+        failed_count = 0
+
+        now = timezone.now()
+        invitation_days = getattr(settings, "COURSE_INVITATION_DAYS", 7)
+        access_days = getattr(settings, "COURSE_ACCESS_DAYS", 90)
 
         for course_request in queryset.select_related("course"):
+            if not course_request.is_verified:
+                skipped_unverified += 1
+                continue
+
             if not course_request.email:
-                skipped_count += 1
+                skipped_without_email += 1
                 continue
 
             username = course_request.email.lower().strip()
@@ -137,7 +187,7 @@ class CourseRequestAdmin(admin.ModelAdmin):
                 user.set_unusable_password()
                 user.save(update_fields=["password"])
 
-            enrollment, enrollment_created = CourseEnrollment.objects.get_or_create(
+            enrollment, _ = CourseEnrollment.objects.get_or_create(
                 course=course_request.course,
                 user=user,
                 defaults={
@@ -146,9 +196,13 @@ class CourseRequestAdmin(admin.ModelAdmin):
                     "email": course_request.email,
                     "phone": course_request.phone,
                     "is_active": True,
-                    "invitation_sent_at": timezone.now(),
+                    "access_expires_at": now + timedelta(days=access_days),
                 },
             )
+
+            if enrollment.activated_at:
+                skipped_activated += 1
+                continue
 
             if not enrollment.course_request:
                 enrollment.course_request = course_request
@@ -157,17 +211,18 @@ class CourseRequestAdmin(admin.ModelAdmin):
             enrollment.email = course_request.email
             enrollment.phone = course_request.phone
             enrollment.is_active = True
-            enrollment.invitation_sent_at = timezone.now()
+            enrollment.access_expires_at = now + timedelta(days=access_days)
+            enrollment.invitation_token = generate_access_token()
+            enrollment.invitation_sent_at = None
+            enrollment.invitation_expires_at = now + timedelta(days=invitation_days)
+            enrollment.invitation_used_at = None
             enrollment.save()
-
-            course_request.status = CourseRequest.STATUS_ENROLLED
-            course_request.save(update_fields=["status"])
 
             activation_url = request.build_absolute_uri(
                 f"/courses/activate/{enrollment.invitation_token}/"
             )
 
-            if course_request.email:
+            try:
                 send_mail(
                     subject="Доступ к курсу гитары",
                     message=(
@@ -178,14 +233,29 @@ class CourseRequestAdmin(admin.ModelAdmin):
                     ),
                     from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
                     recipient_list=[course_request.email],
-                    fail_silently=True,
+                    fail_silently=False,
                 )
 
-            created_count += 1
+            except Exception:
+                failed_count += 1
+                continue
+
+            enrollment.invitation_sent_at = timezone.now()
+            enrollment.save(update_fields=["invitation_sent_at"])
+
+            course_request.status = CourseRequest.STATUS_ENROLLED
+            course_request.save(update_fields=["status"])
+            sent_count += 1
 
         self.message_user(
             request,
-            f"Готово. Доступ выдан: {created_count}. Пропущено без email: {skipped_count}.",
+            (
+                f"Приглашения отправлены: {sent_count}. "
+                f"Не подтверждены: {skipped_unverified}. "
+                f"Без email: {skipped_without_email}. "
+                f"Уже активированы: {skipped_activated}. "
+                f"Ошибки отправки: {failed_count}."
+            ),
         )
 
 
@@ -210,6 +280,8 @@ class CourseEnrollmentAdmin(admin.ModelAdmin):
         "email",
         "phone",
         "is_active",
+        "access_expires_at",
+        "invitation_expires_at",
         "activated_at",
         "last_access_at",
         "created_at",
@@ -220,6 +292,8 @@ class CourseEnrollmentAdmin(admin.ModelAdmin):
     readonly_fields = (
         "access_token",
         "invitation_token",
+        "invitation_expires_at",
+        "invitation_used_at",
         "created_at",
         "activated_at",
         "last_access_at",

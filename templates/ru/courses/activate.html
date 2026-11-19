@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Активация доступа{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="course-detail-page">
+  <div class="container">
+    <div class="course-detail-layout">
+      <article class="course-main">
+        <div class="course-badges">
+          <span>Активация</span>
+          <span>{{ course.title }}</span>
+        </div>
+
+        <h1>Создайте пароль</h1>
+        <p class="course-lead">
+          После установки пароля вы сможете входить в личный кабинет ученика
+          и видеть материалы курса.
+        </p>
+        {% if enrollment.invitation_expires_at %}
+          <p>Приглашение действительно до {{ enrollment.invitation_expires_at|date:"d.m.Y H:i" }}.</p>
+        {% endif %}
+      </article>
+
+      <aside class="course-sidebar">
+        <div class="apply-card">
+          <p class="section-kicker">Аккаунт ученика</p>
+          <h2>Пароль</h2>
+
+          <form method="post" class="course-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+              <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                  <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+              </label>
+            {% endfor %}
+
+            <button class="course-submit" type="submit">
+              Активировать доступ
+            </button>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

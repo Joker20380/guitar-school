@@ -4,6 +4,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils.html import strip_tags
+
+from config.i18n import bilingual as bt
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import CourseRequest, Teacher, TeacherAssignment, TeacherRequest
@@ -18,9 +20,9 @@ class CourseRequestForm(forms.ModelForm):
     phone = PhoneNumberField(
         required=False,
         region="BE",
-        label="Телефон",
+        label=bt('Phone', 'Телефон'),
         error_messages={
-            "invalid": "Введите корректный номер телефона. Например: +32 470 12 34 56.",
+            "invalid": bt('Enter a valid phone number, for example +32 470 12 34 56.', 'Введите корректный номер телефона. Например: +32 470 12 34 56.'),
         },
         widget=forms.TextInput(attrs={
             "placeholder": "+32 470 12 34 56",
@@ -49,14 +51,22 @@ class CourseRequestForm(forms.ModelForm):
             "preferred_format",
             "message",
         ]
+        labels = {
+            "name": bt("Name", "Имя"),
+            "messenger": bt("Messenger", "Мессенджер"),
+            "email": bt("Email", "Электронная почта"),
+            "verification_channel": bt("Verification method", "Способ подтверждения"),
+            "preferred_format": bt("Preferred format", "Предпочтительный формат"),
+            "message": bt("Comment", "Комментарий"),
+        }
         widgets = {
             "name": forms.TextInput(attrs={
-                "placeholder": "Ваше имя",
+                "placeholder": bt('Your name', 'Ваше имя'),
                 "autocomplete": "name",
                 "maxlength": "120",
             }),
             "messenger": forms.TextInput(attrs={
-                "placeholder": "@telegram или другой ник без ссылки",
+                "placeholder": bt('@telegram or another username without a link', '@телеграм или другое имя пользователя без ссылки'),
                 "autocomplete": "off",
                 "maxlength": "80",
             }),
@@ -68,7 +78,7 @@ class CourseRequestForm(forms.ModelForm):
             "verification_channel": forms.Select(),
             "preferred_format": forms.Select(),
             "message": forms.Textarea(attrs={
-                "placeholder": "Расскажите, какой у вас уровень и чему хотите научиться",
+                "placeholder": bt('Tell us about your level and what you want to learn', 'Расскажите, какой у вас уровень и чему хотите научиться'),
                 "rows": 4,
                 "maxlength": "1000",
             }),
@@ -78,7 +88,7 @@ class CourseRequestForm(forms.ModelForm):
         value = self.cleaned_data.get("website", "").strip()
 
         if value:
-            raise ValidationError("Ошибка отправки формы.")
+            raise ValidationError(bt('The form could not be submitted.', 'Ошибка отправки формы.'))
 
         return value
 
@@ -87,10 +97,10 @@ class CourseRequestForm(forms.ModelForm):
         value = re.sub(r"\s+", " ", value)
 
         if not NAME_RE.match(value):
-            raise ValidationError("Введите корректное имя.")
+            raise ValidationError(bt('Enter a valid name.', 'Введите корректное имя.'))
 
         if URL_RE.search(value):
-            raise ValidationError("Имя не должно содержать ссылки.")
+            raise ValidationError(bt('The name must not contain links.', 'Имя не должно содержать ссылки.'))
 
         return value
 
@@ -104,10 +114,10 @@ class CourseRequestForm(forms.ModelForm):
             return ""
 
         if URL_RE.search(value):
-            raise ValidationError("Укажите ник в мессенджере, а не ссылку.")
+            raise ValidationError(bt('Enter a messenger username, not a link.', 'Укажите имя пользователя в мессенджере, а не ссылку.'))
 
         if not MESSENGER_RE.match(value):
-            raise ValidationError("Введите корректный ник мессенджера, например @username.")
+            raise ValidationError(bt('Enter a valid messenger username, for example @username.', 'Введите корректное имя пользователя в мессенджере, например @username.'))
 
         if not value.startswith("@"):
             value = f"@{value}"
@@ -126,10 +136,10 @@ class CourseRequestForm(forms.ModelForm):
         try:
             validate_email(value)
         except ValidationError:
-            raise ValidationError("Введите корректный email.")
+            raise ValidationError(bt('Enter a valid email address.', 'Введите корректный адрес электронной почты.'))
 
         if "\n" in value or "\r" in value:
-            raise ValidationError("Email содержит недопустимые символы.")
+            raise ValidationError(bt('The email address contains invalid characters.', 'Адрес электронной почты содержит недопустимые символы.'))
 
         return value
 
@@ -138,10 +148,10 @@ class CourseRequestForm(forms.ModelForm):
         value = re.sub(r"\n{4,}", "\n\n\n", value)
 
         if len(value) > 1000:
-            raise ValidationError("Комментарий слишком длинный.")
+            raise ValidationError(bt('The comment is too long.', 'Комментарий слишком длинный.'))
 
         if len(URL_RE.findall(value)) > 1:
-            raise ValidationError("Слишком много ссылок в сообщении.")
+            raise ValidationError(bt('The message contains too many links.', 'В сообщении слишком много ссылок.'))
 
         return value
 
@@ -154,16 +164,16 @@ class CourseRequestForm(forms.ModelForm):
         messenger = cleaned.get("messenger")
 
         if not email and not phone and not messenger:
-            raise ValidationError("Укажите хотя бы один способ связи: email, телефон или мессенджер.")
+            raise ValidationError(bt('Provide at least one contact method: email, phone or messenger.', 'Укажите хотя бы один способ связи: электронную почту, телефон или мессенджер.'))
 
         if channel == CourseRequest.VERIFY_EMAIL and not email:
-            self.add_error("email", "Для подтверждения по email нужно указать email.")
+            self.add_error("email", bt('Enter an email address for email verification.', 'Для подтверждения по электронной почте укажите адрес электронной почты.'))
 
         if channel == CourseRequest.VERIFY_PHONE and not phone:
-            self.add_error("phone", "Для подтверждения по телефону нужно указать корректный номер.")
+            self.add_error("phone", bt('Enter a valid phone number for phone verification.', 'Для подтверждения по телефону укажите корректный номер.'))
 
         if channel == CourseRequest.VERIFY_MESSENGER and not messenger and not phone:
-            self.add_error("messenger", "Укажите мессенджер или телефон для подтверждения.")
+            self.add_error("messenger", bt('Enter a messenger username or phone number for verification.', 'Укажите мессенджер или телефон для подтверждения.'))
 
         return cleaned
 
@@ -172,12 +182,18 @@ class TeacherRequestForm(forms.ModelForm):
     class Meta:
         model = TeacherRequest
         fields = ["request_type", "current_teacher", "requested_teacher", "message"]
+        labels = {
+            "request_type": bt("Request type", "Тип заявки"),
+            "current_teacher": bt("Current teacher", "Текущий преподаватель"),
+            "requested_teacher": bt("Requested teacher", "Желаемый преподаватель"),
+            "message": bt("Comment", "Комментарий"),
+        }
         widgets = {
             "request_type": forms.Select(),
             "current_teacher": forms.Select(),
             "requested_teacher": forms.Select(),
             "message": forms.Textarea(attrs={
-                "placeholder": "Напишите, почему хотите заниматься с этим преподавателем или сменить текущего",
+                "placeholder": bt('Tell us why you would like lessons with this teacher or want to change teachers', 'Напишите, почему хотите заниматься с этим преподавателем или сменить текущего'),
                 "rows": 4,
                 "maxlength": "1000",
             }),
@@ -193,7 +209,7 @@ class TeacherRequestForm(forms.ModelForm):
             "full_name",
         )
         self.fields["requested_teacher"].required = False
-        self.fields["requested_teacher"].empty_label = "Выберите преподавателя"
+        self.fields["requested_teacher"].empty_label = bt('Choose a teacher', 'Выберите преподавателя')
 
         current_teacher_ids = []
 
@@ -209,14 +225,14 @@ class TeacherRequestForm(forms.ModelForm):
             "full_name",
         )
         self.fields["current_teacher"].required = False
-        self.fields["current_teacher"].empty_label = "Текущий преподаватель"
+        self.fields["current_teacher"].empty_label = bt('Current teacher', 'Текущий преподаватель')
 
     def clean_message(self):
         value = strip_tags(self.cleaned_data.get("message", "")).strip()
         value = re.sub(r"\n{4,}", "\n\n\n", value)
 
         if len(value) > 1000:
-            raise ValidationError("Комментарий слишком длинный.")
+            raise ValidationError(bt('The comment is too long.', 'Комментарий слишком длинный.'))
 
         return value
 
@@ -228,7 +244,7 @@ class TeacherRequestForm(forms.ModelForm):
         requested_teacher = cleaned.get("requested_teacher")
 
         if not requested_teacher:
-            self.add_error("requested_teacher", "Выберите преподавателя.")
+            self.add_error("requested_teacher", bt('Choose a teacher.', 'Выберите преподавателя.'))
 
         if request_type == TeacherRequest.TYPE_CHANGE:
             has_current_teachers = False
@@ -241,9 +257,9 @@ class TeacherRequestForm(forms.ModelForm):
                 ).exists()
 
             if has_current_teachers and not current_teacher:
-                self.add_error("current_teacher", "Выберите текущего преподавателя для замены.")
+                self.add_error("current_teacher", bt('Choose the current teacher to replace.', 'Выберите текущего преподавателя для замены.'))
 
         if current_teacher and requested_teacher and current_teacher == requested_teacher:
-            self.add_error("requested_teacher", "Новый преподаватель должен отличаться от текущего.")
+            self.add_error("requested_teacher", bt('The new teacher must be different from the current teacher.', 'Новый преподаватель должен отличаться от текущего.'))
 
         return cleaned

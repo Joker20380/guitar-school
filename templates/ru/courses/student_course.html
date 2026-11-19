@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Мой курс — {{ course.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="course-detail-page">
+  <div class="container">
+    <a class="back-link course-back" href="{% url 'courses:my_courses' %}">← Мои курсы</a>
+
+    <div class="course-detail-layout">
+      <article class="course-main">
+        <div class="course-badges">
+          <span>Доступ открыт</span>
+          <span>{{ course.get_level_display }}</span>
+          <span>Прогресс {{ progress_percent }}%</span>
+        </div>
+
+        {% if course.cover_url %}<img class="course-cover" src="{{ course.cover_url }}" alt="{{ course.title }}" loading="lazy">{% endif %}
+<h1>{{ course.title }}</h1>
+
+        <a class="course-card-link" href="{% url 'courses:my_course_teachers' course.slug %}">
+          Мои преподаватели
+        </a>
+
+<p class="course-lead">
+          Это ваша учебная страница курса. Отмечайте пройденные уроки,
+          чтобы преподаватель видел прогресс.
+        </p>
+
+        <div class="course-progress big">
+          <span style="width: {{ progress_percent }}%;"></span>
+        </div>
+
+        {% if course_materials %}
+        <section class="course-materials" aria-label="Материалы курса">
+          <h2>Материалы курса</h2>
+          {% include "courses/material_links.html" with materials=course_materials %}
+        </section>
+        {% endif %}
+
+        <section class="lessons-section">
+          <div class="section-head">
+            <p class="section-kicker">Уроки</p>
+            <h2>Уроки курса</h2>
+          </div>
+
+          {% if lesson_rows %}
+            <div class="lesson-list">
+              {% for row in lesson_rows %}
+                <article class="lesson-card {% if row.progress.is_completed %}lesson-completed{% endif %}">
+                  <span class="lesson-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                  <div>
+                    <h3>{{ row.lesson.title }}</h3>
+
+                    {% if row.lesson.short_description %}
+                      <p>{{ row.lesson.short_description }}</p>
+                    {% endif %}
+
+                    {% if row.lesson.content %}
+                      <div class="lesson-content">
+                        {{ row.lesson.content|urlize|linebreaks }}
+                      </div>
+                    {% endif %}
+
+                    {% if row.lesson.video_file %}
+                      <video class="lesson-uploaded-video" controls preload="metadata" playsinline src="{{ row.lesson.video_file.url }}">
+                        <a href="{{ row.lesson.video_file.url }}">Скачать видео</a>
+                      </video>
+                    {% elif row.lesson.video_embed_url %}
+                      <div class="lesson-video">
+                        <iframe
+                          src="{{ row.lesson.video_embed_url }}"
+                          title="Видео урока: {{ row.lesson.title }}"
+                          loading="lazy"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowfullscreen
+                          referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
+                      </div>
+                    {% elif row.lesson.video_url %}
+                      <p>
+                        <a class="course-inline-link" href="{{ row.lesson.video_url }}" target="_blank" rel="noopener">
+                          Открыть видео урока
+                        </a>
+                      </p>
+                    {% endif %}
+
+                    {% if row.lesson.online_meeting_url %}
+                      <p>
+                        <a class="course-inline-link" href="{{ row.lesson.online_meeting_url }}" target="_blank" rel="noopener">
+                          Перейти в онлайн-комнату урока
+                        </a>
+                      </p>
+                    {% endif %}
+
+                    {% if row.lesson.published_materials %}
+                    <section class="lesson-materials">
+                      <h4>Материалы урока</h4>
+                      {% include "courses/material_links.html" with materials=row.lesson.published_materials %}
+                    </section>
+                    {% endif %}
+
+                    {% if row.lesson.homework %}
+                      <div class="homework-box">
+                        <strong>Домашнее задание</strong>
+                        {{ row.lesson.homework|urlize|linebreaks }}
+                      </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'courses:mark_lesson_complete' course.slug row.lesson.id %}" class="lesson-progress-form">
+                      {% csrf_token %}
+                      {% if row.progress.is_completed %}
+                        <input type="hidden" name="complete" value="0">
+                        <button type="submit" class="lesson-progress-button done">
+                          Пройдено ✓
+                        </button>
+                      {% else %}
+                        <input type="hidden" name="complete" value="1">
+                        <button type="submit" class="lesson-progress-button">
+                          Отметить как пройденный
+                        </button>
+                      {% endif %}
+                    </form>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="muted-text">Материалы курса скоро появятся.</p>
+          {% endif %}
+        </section>
+      </article>
+
+      <aside class="course-sidebar">
+        <div class="apply-card">
+          <p class="section-kicker">Прогресс</p>
+          <h2>{{ progress_percent }}%</h2>
+          <p>
+            Ученик: <strong>{{ enrollment.student_name }}</strong>
+          </p>
+          <p>
+            Преподаватель видит ваш прогресс в админке.
+          </p>
+
+          {% if enrollment.access_expires_at %}
+            <p>Доступ действует до: {{ enrollment.access_expires_at|date:"d.m.Y H:i" }}</p>
+          {% endif %}
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

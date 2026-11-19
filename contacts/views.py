@@ -1,7 +1,12 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.shortcuts import render
+import logging
+
+from django.shortcuts import render, redirect
+from config.i18n import bilingual as bt
+
+logger = logging.getLogger(__name__)
 
 from .forms import ContactMessageForm
 
@@ -19,7 +24,7 @@ def send_contact_notification(contact_message):
     recipient = getattr(settings, "CONTACT_NOTIFY_EMAIL", "")
 
     if not recipient:
-        return
+        return False
 
     body = (
         "Новое сообщение с сайта школы гитары\n\n"
@@ -37,8 +42,9 @@ def send_contact_notification(contact_message):
         message=body,
         from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
         recipient_list=[recipient],
-        fail_silently=True,
+        fail_silently=False,
     )
+    return True
 
 
 def contact_page(request):
@@ -51,16 +57,18 @@ def contact_page(request):
             contact_message.user_agent = request.META.get("HTTP_USER_AGENT", "")[:300]
             contact_message.save()
 
-            send_contact_notification(contact_message)
+            try:
+                send_contact_notification(contact_message)
+            except Exception:
+                logger.warning("Contact notification failed for request %s", contact_message.pk)
 
-            messages.success(
-                request,
-                "Сообщение отправлено. Мы свяжемся с вами удобным способом.",
-            )
-
-            form = ContactMessageForm()
+            messages.success(request, bt(
+                "Thank you! Your request has been received. We will contact you to discuss the details.",
+                "Спасибо! Заявка принята. Мы свяжемся с вами и обсудим детали.",
+            ))
+            return redirect("/contacts/#contact-form")
         else:
-            messages.error(request, "Проверьте поля формы. Некоторые данные заполнены некорректно.")
+            messages.error(request, bt("Please check the highlighted fields.", "Проверьте отмеченные поля формы."))
     else:
         form = ContactMessageForm()
 
@@ -69,6 +77,7 @@ def contact_page(request):
         "contact_phone": settings.CONTACT_PHONE,
         "contact_email": settings.CONTACT_EMAIL,
         "contact_telegram": settings.CONTACT_TELEGRAM,
+        "contact_whatsapp": settings.CONTACT_WHATSAPP,
         "contact_address": settings.CONTACT_ADDRESS,
         "contact_working_hours": settings.CONTACT_WORKING_HOURS,
     })

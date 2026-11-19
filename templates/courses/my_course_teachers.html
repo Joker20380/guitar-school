@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Мои преподаватели{% endblock %}
+{% block title %}My teachers{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -13,18 +13,17 @@
     <div class="course-detail-layout">
       <article class="course-main">
         <div class="course-badges">
-          <span>Личный кабинет</span>
+          <span>Student area</span>
           <span>{{ course.title }}</span>
         </div>
 
-        <h1>Мои преподаватели</h1>
+        <h1>My teachers</h1>
         <p class="course-lead">
-          Здесь отображаются преподаватели, назначенные администратором.
-          Также можно отправить заявку на смену преподавателя или занятия с другим преподавателем.
+          Your assigned teachers appear here. You can also request a different teacher.
         </p>
 
         <section class="lesson-list">
-          <h2>Назначенные преподаватели</h2>
+          <h2>Assigned teachers</h2>
 
           {% for assignment in assignments %}
             <article class="student-teacher-card">
@@ -38,7 +37,7 @@
 
                 <div class="course-badges">
                   {% if assignment.is_primary %}
-                    <span>Основной</span>
+                    <span>Primary</span>
                   {% endif %}
                   <span>{{ assignment.teacher.get_teaching_level_display }}</span>
                   <span>{{ assignment.teacher.get_lesson_format_display }}</span>
@@ -46,18 +45,18 @@
               </div>
 
               <a class="course-card-link" href="{{ assignment.teacher.get_absolute_url }}">
-                Профиль
+                Profile
               </a>
             </article>
           {% empty %}
             <p>
-              Преподаватель пока не назначен. Вы можете выбрать желаемого преподавателя ниже.
+              No teacher has been assigned yet. You can request one below.
             </p>
           {% endfor %}
         </section>
 
         <section class="lesson-list">
-          <h2>Доступные преподаватели</h2>
+          <h2>Available teachers</h2>
 
           <div class="teacher-mini-grid">
             {% for teacher in active_teachers %}
@@ -72,13 +71,13 @@
                 </div>
               </article>
             {% empty %}
-              <p>Активные преподаватели пока не добавлены.</p>
+              <p>No active teachers are available yet.</p>
             {% endfor %}
           </div>
         </section>
 
         <section class="lesson-list">
-          <h2>Мои заявки</h2>
+          <h2>My requests</h2>
 
           {% for item in teacher_requests %}
             <article class="teacher-request-row">
@@ -86,14 +85,14 @@
               <span>{{ item.get_status_display }}</span>
               <p>
                 {% if item.requested_teacher %}
-                  Желаемый преподаватель: {{ item.requested_teacher.full_name }}
+                  Requested teacher: {{ item.requested_teacher.full_name }}
                 {% else %}
-                  Желаемый преподаватель не выбран
+                  No requested teacher selected
                 {% endif %}
               </p>
             </article>
           {% empty %}
-            <p>Заявок пока нет.</p>
+            <p>No requests yet.</p>
           {% endfor %}
         </section>
       </article>
@@ -101,10 +100,9 @@
       <aside class="course-sidebar">
         <div class="apply-card">
           <p class="section-kicker">Teacher request</p>
-          <h2>Отправить заявку</h2>
+          <h2>Send request</h2>
           <p>
-            Выберите тип заявки и преподавателя. Администратор рассмотрит запрос
-            и изменит назначение в админке.
+            Choose a request type and teacher. An administrator will review your request.
           </p>
 
           <form method="post" action="{% url 'courses:request_teacher' course.slug %}" class="course-form">
@@ -121,7 +119,7 @@
             {% endfor %}
 
             <button class="course-submit" type="submit">
-              Отправить заявку
+              Send request
             </button>
           </form>
         </div>

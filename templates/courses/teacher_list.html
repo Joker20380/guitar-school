@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Преподаватели{% endblock %}
-{% block description %}Преподаватели школы игры на гитаре: навыки, опыт, уровень преподавания и форматы занятий.{% endblock %}
+{% block title %}Teachers{% endblock %}
+{% block description %}Phoenix Song guitar teachers: skills, experience, teaching levels and lesson formats.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -13,18 +13,17 @@
   <div class="container">
     <header class="courses-hero">
       <p class="section-kicker">Teachers</p>
-      <h1>Преподаватели школы</h1>
+      <h1>Our teachers</h1>
       <p>
-        Выберите преподавателя по уровню, стилю занятий и навыкам.
-        Ученики могут отправить заявку на занятия с выбранным преподавателем из личного кабинета.
+        Choose a teacher by level, teaching style and skills. Enrolled students can request lessons from their student area.
       </p>
     </header>
 
     <div class="course-grid teacher-grid">
       {% for teacher in teachers %}
         <article class="course-card teacher-card">
-          {% if teacher.photo_url %}
-            <div class="teacher-photo" style="background-image: url('{{ teacher.photo_url }}');"></div>
+          {% if teacher.image_url %}
+            <img class="teacher-photo" src="{{ teacher.image_url }}" alt="{{ teacher.full_name }}" loading="lazy">
           {% else %}
             <div class="teacher-photo teacher-photo-empty">
               {{ teacher.full_name|slice:":1" }}
@@ -49,13 +48,13 @@
             {% endif %}
 
             <a class="course-card-link" href="{{ teacher.get_absolute_url }}">
-              Смотреть преподавателя
+              View teacher
             </a>
           </div>
         </article>
       {% empty %}
         <div class="empty-course-list">
-          Преподаватели пока не добавлены.
+          Teachers are coming soon.
         </div>
       {% endfor %}
     </div>

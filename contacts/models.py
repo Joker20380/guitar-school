@@ -1,4 +1,6 @@
 from django.db import models
+
+from config.i18n import bilingual as bt
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -8,9 +10,9 @@ class ContactMessage(models.Model):
     STATUS_ARCHIVED = "archived"
 
     STATUS_CHOICES = [
-        (STATUS_NEW, "Новое"),
-        (STATUS_REPLIED, "Ответили"),
-        (STATUS_ARCHIVED, "Архив"),
+        (STATUS_NEW, bt("New", "Новое")),
+        (STATUS_REPLIED, bt("Replied", "Ответили")),
+        (STATUS_ARCHIVED, bt("Archived", "Архив")),
     ]
 
     CONTACT_EMAIL = "email"
@@ -18,9 +20,9 @@ class ContactMessage(models.Model):
     CONTACT_TELEGRAM = "telegram"
 
     CONTACT_CHOICES = [
-        (CONTACT_EMAIL, "Email"),
-        (CONTACT_PHONE, "Телефон"),
-        (CONTACT_TELEGRAM, "Telegram"),
+        (CONTACT_EMAIL, bt("Email", "Электронная почта")),
+        (CONTACT_PHONE, bt("Phone", "Телефон")),
+        (CONTACT_TELEGRAM, bt("Telegram", "Телеграм")),
     ]
 
     name = models.CharField("Имя", max_length=120)

@@ -11,15 +11,7 @@
 {% block content %}
 <section class="course-detail-page">
   <div class="container">
-    <a class="back-link course-back" href="/courses/">← Все курсы</a>
-
-    {% if messages %}
-      <div class="course-messages">
-        {% for message in messages %}
-          <div class="course-message {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
+    <a class="back-link course-back" href="/courses/">← All courses</a>
 
     <div class="course-detail-layout">
       <article class="course-main">
@@ -34,7 +26,8 @@
           {% endif %}
         </div>
 
-        <h1>{{ course.title }}</h1>
+        {% if course.cover_url %}<img class="course-cover" src="{{ course.cover_url }}" alt="{{ course.title }}" loading="lazy">{% endif %}
+<h1>{{ course.title }}</h1>
         <p class="course-lead">{{ course.short_description }}</p>
 
         <div class="course-description">
@@ -44,7 +37,7 @@
         <section class="lessons-section">
           <div class="section-head">
             <p class="section-kicker">Course program</p>
-            <h2>Программа курса</h2>
+            <h2>Course program</h2>
           </div>
 
           {% if lessons %}
@@ -58,14 +51,14 @@
                       <p>{{ lesson.short_description }}</p>
                     {% endif %}
                     {% if lesson.online_meeting_url %}
-                      <small>Онлайн-комната будет доступна ученику после записи.</small>
+                      <small>The online lesson room is available after enrollment.</small>
                     {% endif %}
                   </div>
                 </article>
               {% endfor %}
             </div>
           {% else %}
-            <p class="muted-text">Программа курса скоро будет добавлена.</p>
+            <p class="muted-text">The course program is coming soon.</p>
           {% endif %}
         </section>
       </article>
@@ -73,10 +66,9 @@
       <aside class="course-sidebar" id="apply">
         <div class="apply-card">
           <p class="section-kicker">Start learning</p>
-          <h2>Записаться на курс</h2>
+          <h2>Enroll in this course</h2>
           <p>
-            Оставьте заявку — преподаватель свяжется с вами, уточнит уровень
-            и предложит удобный формат занятия.
+            Send a request and a teacher will contact you to discuss your level and preferred lesson format.
           </p>
 
           <form method="post" action="{% url 'courses:apply' course.slug %}" class="course-form">
@@ -97,7 +89,7 @@
             {% endfor %}
 
             <button class="course-submit" type="submit">
-              Отправить заявку
+              Send request
             </button>
           </form>
         </div>

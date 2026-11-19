@@ -20,12 +20,19 @@ def env(name, default=None):
     return os.environ.get(name, default)
 
 
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=014*u@9oi!yi2nx69acir(+k4g6-j&$t6lu-#590rxt2+hb2w'
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,6 +43,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,12 +54,15 @@ INSTALLED_APPS = [
     'tuner',
     "courses",
     "contacts",
+    "journal",
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'config.public_locale.PublicLocaleMiddleware',
+    'config.admin_locale.AdminLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -65,10 +76,15 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': False,
         'OPTIONS': {
+            'loaders': [
+                'config.template_loaders.LocaleFilesystemLoader',
+                'django.template.loaders.app_directories.Loader',
+            ],
             'context_processors': [
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -112,7 +128,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('ru', 'Русский'),
+]
+
+LANGUAGE_COOKIE_NAME = 'phoenix_songs_language'
+LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
 
 TIME_ZONE = 'UTC'
 
@@ -151,7 +175,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("POSTGRES_DB", "guitar_school_db"),
         "USER": os.getenv("POSTGRES_USER", "guitar_school_user"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "guitar_school_password"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
         "HOST": os.getenv("POSTGRES_HOST", "db"),
         "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
@@ -159,13 +183,19 @@ DATABASES = {
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+# Never expose this directory through a public web-server alias.
+PRIVATE_MEDIA_ROOT = BASE_DIR / "private_media"
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
 
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "config.static_storage.AdminStaticFilesStorage",
     },
 }
 
@@ -187,6 +217,23 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/courses/my/"
 LOGOUT_REDIRECT_URL = "/"
 
+COURSE_INVITATION_DAYS = int(env("COURSE_INVITATION_DAYS", 7))
+COURSE_ACCESS_DAYS = int(env("COURSE_ACCESS_DAYS", 90))
+
+# Email
+EMAIL_BACKEND = env("EMAIL_BACKEND", "config.email_backend.BrevoEmailBackend")
+EMAIL_HOST = env("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(env("EMAIL_PORT", 25))
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", False)
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", False)
+EMAIL_TIMEOUT = int(env("EMAIL_TIMEOUT", 10))
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "webmaster@localhost")
+BREVO_API_KEY = env("BREVO_API_KEY", "")
+BREVO_API_TIMEOUT = int(env("BREVO_API_TIMEOUT", 10))
+BREVO_REPLY_TO = env("BREVO_REPLY_TO", "")
+
 # Phone number validation
 PHONENUMBER_DEFAULT_REGION = "BE"
 PHONENUMBER_DB_FORMAT = "E164"
@@ -196,6 +243,51 @@ PHONENUMBER_DB_FORMAT = "E164"
 CONTACT_PHONE = env("CONTACT_PHONE", default="")
 CONTACT_EMAIL = env("CONTACT_EMAIL", default="")
 CONTACT_TELEGRAM = env("CONTACT_TELEGRAM", default="")
-CONTACT_ADDRESS = env("CONTACT_ADDRESS", default="Гент / онлайн")
-CONTACT_WORKING_HOURS = env("CONTACT_WORKING_HOURS", default="По предварительной записи")
+CONTACT_WHATSAPP = env("CONTACT_WHATSAPP", default="")
+CONTACT_ADDRESS = env("CONTACT_ADDRESS", default="Ghent / online")
+CONTACT_WORKING_HOURS = env("CONTACT_WORKING_HOURS", default="By appointment")
 CONTACT_NOTIFY_EMAIL = env("CONTACT_NOTIFY_EMAIL", default="")
+
+
+# Administration follows the Phoenix Songs public site's visual identity.
+JAZZMIN_SETTINGS = {
+    "site_title": "Phoenix Songs — администрирование",
+    "site_header": "Phoenix Songs",
+    "site_brand": "Phoenix Songs",
+    "site_logo": "images/phoenix-admin-mark.svg",
+    "site_icon": "images/phoenix-admin-mark.svg",
+    "site_logo_classes": "",
+    "welcome_sign": "Управление гитарной школой",
+    "copyright": "Phoenix Songs",
+    "show_sidebar": True,
+    "navigation_expanded": False,
+    "show_theme_chooser": True,
+    "use_google_fonts_cdn": False,
+    "show_ui_builder": False,
+    "changeform_format": "single",
+    "related_modal_active": False,
+    "search_model": "courses.Course",
+    "order_with_respect_to": [
+        "courses", "courses.Course", "courses.Lesson", "courses.CourseMaterial",
+        "courses.LessonMaterial", "courses.CourseRequest", "courses.CourseEnrollment",
+        "courses.Teacher", "courses.TeacherRequest", "contacts", "auth",
+    ],
+    "topmenu_links": [
+        {"name": "Сайт", "url": "/", "new_window": True},
+        {"model": "courses.Course"},
+        {"model": "courses.CourseRequest"},
+        {"name": "Инструкция", "url": "admin_guide"},
+    ],
+    "icons": {
+        "courses": "fas fa-guitar", "contacts": "fas fa-envelope", "auth": "fas fa-users-cog",
+        "courses.Course": "fas fa-book-open", "courses.Lesson": "fas fa-music",
+        "courses.CourseMaterial": "fas fa-folder-open", "courses.LessonMaterial": "fas fa-file-alt",
+        "courses.CourseRequest": "fas fa-inbox", "courses.CourseEnrollment": "fas fa-user-graduate",
+        "courses.LessonProgress": "fas fa-tasks", "courses.Teacher": "fas fa-chalkboard-teacher",
+        "courses.TeacherAssignment": "fas fa-user-friends", "courses.TeacherRequest": "fas fa-comment-dots",
+        "courses.TeacherSkill": "fas fa-star", "contacts.ContactMessage": "fas fa-envelope",
+        "auth.User": "fas fa-user", "auth.Group": "fas fa-users",
+    },
+    "custom_css": "css/phoenix-admin.css",
+}
+JAZZMIN_UI_TWEAKS = {"theme": "default", "default_theme_mode": "auto"}

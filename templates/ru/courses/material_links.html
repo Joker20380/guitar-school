@@ -1,0 +1,10 @@
+<ul class="material-links">
+  {% for material in materials %}
+    <li>
+      <a class="course-inline-link" href="{{ material.resource_url }}"{% if material.external_url %} target="_blank" rel="noopener noreferrer"{% endif %}>
+        {{ material.title }}
+      </a>
+      <span class="material-kind">{% if material.file %}Скачать файл{% else %}Открыть ресурс{% endif %}</span>
+    </li>
+  {% endfor %}
+</ul>

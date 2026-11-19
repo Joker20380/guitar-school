@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Контакты{% endblock %}
+{% block description %}Запись на индивидуальный онлайн-урок гитары или консультацию в Phoenix Song.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'contacts/css/contacts.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="contacts-page">
+  <div class="container">
+
+    <header class="contacts-hero">
+      <div class="contacts-hero-text">
+        <p class="section-kicker">Связаться со школой</p>
+        <h1>Первый урок — бесплатно</h1>
+        <p>
+          Первый индивидуальный онлайн-урок бесплатный. Изучайте русский через гитару и музыку или занимайтесь только гитарой. Оставьте контакты для записи или консультации.
+        </p>
+
+        <div class="contacts-hero-actions">
+          <a href="#contact-form" class="contact-primary-action">Оставить заявку</a>
+
+        </div>
+      </div>
+
+      <aside class="contacts-hero-card">
+        <span class="hero-card-label">Школа гитары</span>
+        <h2>Первый шаг — короткое сообщение</h2>
+        <p>
+          Индивидуальные онлайн-занятия под ваш уровень и цели. Перед записью можно задать вопросы и обсудить обучение.
+        </p>
+
+        <div class="hero-mini-list">
+          <span>Индивидуальный подход</span>
+          <span>Онлайн-занятия</span>
+          <span>Индивидуальный план</span>
+        </div>
+      </aside>
+    </header>
+
+    <div class="contacts-layout">
+      <aside class="contacts-info">
+
+        <article class="contact-info-card main-contact-card">
+          <span class="card-number">01</span>
+          <h2>Связь</h2>
+          <p>
+            Можно написать через форму или напрямую, если контакты уже указаны.
+          </p>
+
+          <div class="direct-contacts">
+            {% if contact_phone %}
+              <a href="tel:{{ contact_phone }}">
+                <small>Телефон</small>
+                <strong>{{ contact_phone }}</strong>
+              </a>
+            {% endif %}
+
+            {% if contact_email %}
+              <a href="mailto:{{ contact_email }}">
+                <small>Email</small>
+                <strong>{{ contact_email }}</strong>
+              </a>
+            {% endif %}
+
+            {% if contact_telegram %}
+              <a href="https://t.me/{{ contact_telegram|cut:'@' }}" target="_blank" rel="noopener">
+                <small>Telegram</small>
+                <strong>{{ contact_telegram }}</strong>
+              </a>
+            {% endif %}
+
+            {% if contact_whatsapp %}
+              <a href="https://wa.me/{{ contact_whatsapp }}" target="_blank" rel="noopener">
+                <small>WhatsApp</small>
+                <strong>Написать в WhatsApp</strong>
+              </a>
+            {% endif %}
+
+            {% if not contact_phone and not contact_email and not contact_telegram %}
+              <div class="empty-contact-note">
+                Прямые контакты пока не указаны в настройках. Используйте форму справа.
+              </div>
+            {% endif %}
+          </div>
+        </article>
+
+        <article class="contact-info-card">
+          <span class="card-number">02</span>
+          <h2>Формат</h2>
+          <p>Индивидуальные онлайн-уроки гитары.</p>
+        </article>
+
+        <article class="contact-info-card">
+          <span class="card-number">03</span>
+          <h2>Где встречаемся</h2>
+          <p>Онлайн — подключайтесь из любой точки мира.</p>
+        </article>
+
+        <article class="contact-info-card">
+          <span class="card-number">04</span>
+          <h2>Время</h2>
+          <p>{{ contact_working_hours }}</p>
+        </article>
+      </aside>
+
+      <main class="contact-form-card" id="contact-form">
+        <p class="section-kicker">Давайте знакомиться</p>
+        <h2>Есть вопросы или хотите на урок?</h2>
+        <p>
+          Выберите урок или консультацию и оставьте имя, почту и телефон. Мы используем эти контакты, чтобы ответить на заявку. Поля со * обязательны.
+        </p>
+
+        <form method="post" action="/contacts/#contact-form" class="contact-form">
+          {% csrf_token %}
+
+          {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+          {% endfor %}
+
+          {% if form.website.errors %}<div class="field-error" role="alert">{{ form.website.errors|striptags }}</div>{% endif %}
+          {% if form.non_field_errors %}
+            <div class="field-error form-error">
+              {{ form.non_field_errors|striptags }}
+            </div>
+          {% endif %}
+
+          {% for field in form.visible_fields %}
+            <label for="{{ field.id_for_label }}">
+              <span>{{ field.label }}{% if field.field.required %} *{% endif %}</span>
+              {{ field }}
+              {% if field.errors %}<small class="field-error">{{ field.errors|striptags }}</small>{% endif %}
+            </label>
+          {% endfor %}
+
+          <button type="submit" class="contact-submit">
+            Отправить заявку
+          </button>
+        </form>
+      </main>
+    </div>
+
+    <section class="contact-steps">
+      <div class="contact-step">
+        <span>01</span>
+        <h3>Вы пишете</h3>
+        <p>Указываете цель: научиться с нуля, подтянуть технику, разобрать песни или заниматься онлайн.</p>
+      </div>
+
+      <div class="contact-step">
+        <span>02</span>
+        <h3>Мы уточняем уровень</h3>
+        <p>Обсуждаем ваш опыт, отвечаем на вопросы и подбираем удобное время.</p>
+      </div>
+
+      <div class="contact-step">
+        <span>03</span>
+        <h3>Начинаем занятия</h3>
+        <p>Встречаемся с преподавателем онлайн и занимаемся по индивидуальному плану.</p>
+      </div>
+    </section>
+
+  </div>
+</section>
+{% endblock %}

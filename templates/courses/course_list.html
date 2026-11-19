@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Курсы гитары{% endblock %}
-{% block description %}Курсы игры на гитаре для новичков и продолжающих: онлайн, офлайн и смешанный формат.{% endblock %}
+{% block title %}Individual guitar lessons{% endblock %}
+{% block description %}Individual online guitar lessons with Phoenix Song.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -12,19 +12,19 @@
 <section class="courses-page">
   <div class="container">
     <header class="courses-hero">
-      <p class="section-kicker">Guitar courses</p>
-      <h1>Курсы игры на гитаре</h1>
+      <p class="section-kicker">Phoenix Song</p>
+      <h1>Individual online lessons</h1>
       <p>
-        Выберите направление: первые аккорды, уверенный аккомпанемент,
-        техника, ритм, разбор песен или индивидуальные онлайн-уроки.
+        Recorded courses are being prepared. For now, learn directly with a teacher in an individual online lesson.
       </p>
     </header>
 
-    {% if courses %}
+    {% if False %}
       <div class="course-grid">
         {% for course in courses %}
           <article class="course-card">
-            <div class="course-card-top">
+            {% if course.cover_url %}<img class="course-cover" src="{{ course.cover_url }}" alt="{{ course.title }}" loading="lazy">{% endif %}
+<div class="course-card-top">
               <span>{{ course.get_level_display }}</span>
               <strong>{{ course.get_format_display }}</strong>
             </div>
@@ -42,15 +42,15 @@
             </div>
 
             <a class="course-link" href="{{ course.get_absolute_url }}">
-              Подробнее
+              View course
             </a>
           </article>
         {% endfor %}
       </div>
     {% else %}
       <div class="empty-courses">
-        <h2>Курсы скоро появятся</h2>
-        <p>Добавьте первый курс в админке Django.</p>
+        <h2>Courses are coming soon</h2>
+        <p>The first course will appear here soon.</p>
       </div>
     {% endif %}
   </div>

@@ -1,0 +1,96 @@
+:root { --body-bg: var(--bs-body-bg); --body-fg: var(--bs-body-color); --darkened-bg: var(--bs-tertiary-bg); --hairline-color: var(--bs-border-color); --link-fg: var(--bs-link-color); --link-hover-color: var(--bs-link-hover-color); --primary: var(--bs-primary); }
+/* Phoenix Songs branding: colors from static/css/theme.css. */
+:root, [data-bs-theme=light], [data-bs-theme=dark] {
+  --bs-primary: #d6a84f;
+  --bs-primary-rgb: 214, 168, 79;
+  --bs-success: #d6a84f;
+  --bs-success-rgb: 214, 168, 79;
+  --bs-info: #d6a84f;
+  --bs-info-rgb: 214, 168, 79;
+  --bs-link-color: #d6a84f;
+  --bs-link-color-rgb: 214, 168, 79;
+  --bs-link-hover-color: #bf913b;
+  --bs-link-hover-color-rgb: 191, 145, 59;
+}
+[data-bs-theme=dark] {
+  --bs-link-color: #f0c76a;
+  --bs-link-color-rgb: 240, 199, 106;
+  --bs-link-hover-color: #ffe0a0;
+  --bs-link-hover-color-rgb: 255, 224, 160;
+}
+.btn-primary, .btn-success, .btn-info {
+  --bs-btn-color: #17110a;
+  --bs-btn-bg: #d6a84f;
+  --bs-btn-border-color: #d6a84f;
+  --bs-btn-hover-color: #17110a;
+  --bs-btn-hover-bg: #bf913b;
+  --bs-btn-hover-border-color: #bf913b;
+  --bs-btn-active-color: #17110a;
+  --bs-btn-active-bg: #ac7d2f;
+  --bs-btn-active-border-color: #ac7d2f;
+  --bs-btn-disabled-color: #17110a;
+  --bs-btn-disabled-bg: #d6a84f;
+  --bs-btn-disabled-border-color: #d6a84f;
+  --bs-btn-focus-shadow-rgb: 214, 168, 79;
+}
+.btn-outline-primary, .btn-outline-success, .btn-outline-info {
+  --bs-btn-color: var(--bs-link-color);
+  --bs-btn-border-color: var(--bs-link-color);
+  --bs-btn-hover-color: #17110a;
+  --bs-btn-hover-bg: #d6a84f;
+  --bs-btn-hover-border-color: #d6a84f;
+  --bs-btn-active-color: #17110a;
+  --bs-btn-active-bg: #bf913b;
+  --bs-btn-active-border-color: #bf913b;
+  --bs-btn-focus-shadow-rgb: 214, 168, 79;
+}
+.app-sidebar {
+  background: linear-gradient(180deg, #0f1110, #28241a) !important;
+  --lte-sidebar-menu-active-bg: #d6a84f;
+  --lte-sidebar-menu-active-color: #17110a;
+  --lte-sidebar-menu-hover-bg: rgba(214, 168, 79, .18);
+}
+.sidebar-menu .nav-link.active { background-color: #d6a84f !important; color: #17110a !important; }
+.sidebar-brand { border-bottom: 2px solid #d6a84f; }
+.brand-image { width: 34px; height: 34px; object-fit: contain; opacity: 1 !important; box-shadow: none !important; }
+.login-logo img { width: 84px; height: 84px; object-fit: contain; }
+.login-page .card { border-top: 3px solid #d6a84f; }
+.page-link { --bs-pagination-active-bg: #d6a84f; --bs-pagination-active-border-color: #d6a84f; }
+.form-check-input:checked { background-color: #d6a84f; border-color: #d6a84f; }
+.nav-pills { --bs-nav-pills-link-active-bg: #d6a84f; }
+.select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: #d6a84f; }
+
+/* Gold needs a darker companion for readable links on cream/white surfaces. */
+:root, [data-bs-theme=light] {
+ --bs-link-color: #805b1b; --bs-link-color-rgb: 128, 91, 27;
+ --bs-link-hover-color: #61420f; --bs-link-hover-color-rgb: 97, 66, 15;
+ --bs-body-bg: #fffdf8; --bs-body-color: #29251e;
+ --bs-secondary-bg: #f4efe4; --bs-secondary-bg-rgb: 244, 239, 228; --bs-tertiary-bg: #f5f1e9; --bs-tertiary-bg-rgb: 245, 241, 233;
+}
+[data-bs-theme=dark] {
+ --bs-body-bg: #171a16; --bs-body-color: #f5efe4;
+ --bs-secondary-bg: #1f241e; --bs-secondary-bg-rgb: 31, 36, 30; --bs-tertiary-bg: #111410; --bs-tertiary-bg-rgb: 17, 20, 16;
+ --bs-border-color: #424638;
+}
+.app-sidebar { --bs-body-color: #f5efe4; }
+.sidebar-menu .nav-link.active { color: #17110a !important; }
+.dashboard .btn-group:has(> .addlink, > .changelink, > .viewlink) { gap: 8px; }
+.dashboard .btn-group > .addlink, .dashboard .btn-group > .changelink, .dashboard .btn-group > .viewlink {
+ margin-left: 0 !important; border-radius: var(--bs-border-radius-sm) !important;
+}
+.dashboard .changelink, .dashboard .viewlink {
+ --bs-btn-color: var(--bs-link-color); --bs-btn-bg: transparent; --bs-btn-border-color: var(--bs-link-color);
+}
+.submit-row .btn { white-space: normal; }
+.admin-guide { max-width: 1180px; margin-inline: auto; }
+@media print {
+ .app-header,.app-sidebar,.app-footer,.app-content-header,.guide-actions { display: none !important; }
+ .app-main { margin: 0 !important; }
+ .admin-guide { --body-bg: #fff; --body-fg: #111; --darkened-bg: #f4f4f4; --hairline-color: #ccc; --link-fg: #61420f; --primary: #805b1b; border: 0; box-shadow: none; }
+}
+
+[data-bs-theme=dark] {
+ --bs-link-color: #f0c76a; --bs-link-color-rgb: 240, 199, 106;
+ --bs-link-hover-color: #ffe0a0; --bs-link-hover-color-rgb: 255, 224, 160;
+}
+.app-content textarea, .app-content input[type=file] { max-width: 100%; box-sizing: border-box; }

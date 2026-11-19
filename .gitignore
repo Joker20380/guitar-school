@@ -9,6 +9,11 @@ venv/
 .idea/
 .vscode/
 .DS_Store
+/private_media/
+/.preview/
+/test-results/
+/node_modules/
+/playwright-report/
 
 # Local backup and patch artifacts
 *.bak

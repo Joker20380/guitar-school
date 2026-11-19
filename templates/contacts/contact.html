@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Контакты{% endblock %}
-{% block description %}Контакты школы игры на гитаре: запись на пробный урок, вопросы по курсам, онлайн-занятия и индивидуальное обучение.{% endblock %}
+{% block title %}Contact{% endblock %}
+{% block description %}Book an individual online guitar lesson or ask Phoenix Song about learning with us.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'contacts/css/contacts.css' %}">
@@ -15,56 +15,46 @@
     <header class="contacts-hero">
       <div class="contacts-hero-text">
         <p class="section-kicker">Contact the studio</p>
-        <h1>Записаться на урок гитары</h1>
+        <h1>Try your first lesson free</h1>
         <p>
-          Напишите нам, если хотите подобрать курс, записаться на пробное занятие
-          или задать вопрос по онлайн-урокам. Ответим и поможем выбрать удобный формат.
+          Your first individual online lesson is free. Learn Russian through guitar and music, or focus on guitar alone. Leave your details to book a lesson or ask a question.
         </p>
 
         <div class="contacts-hero-actions">
-          <a href="#contact-form" class="contact-primary-action">Оставить заявку</a>
-          <a href="/courses/" class="contact-secondary-action">Посмотреть курсы</a>
+          <a href="#contact-form" class="contact-primary-action">Send a request</a>
+
         </div>
       </div>
 
       <aside class="contacts-hero-card">
         <span class="hero-card-label">Guitar school</span>
-        <h2>Первый шаг — короткое сообщение</h2>
+        <h2>Start with a short message</h2>
         <p>
-          Расскажите ваш уровень, цель и удобный формат. Мы подскажем,
-          с какого курса или урока лучше начать.
+          Individual online lessons, tailored to your level and goals. You can ask about lessons before deciding to join.
         </p>
 
         <div class="hero-mini-list">
-          <span>Пробный урок</span>
-          <span>Онлайн-занятия</span>
-          <span>Индивидуальный план</span>
+          <span>Individual approach</span>
+          <span>Online lessons</span>
+          <span>Personal plan</span>
         </div>
       </aside>
     </header>
-
-    {% if messages %}
-      <div class="contact-messages">
-        {% for message in messages %}
-          <div class="contact-message {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
 
     <div class="contacts-layout">
       <aside class="contacts-info">
 
         <article class="contact-info-card main-contact-card">
           <span class="card-number">01</span>
-          <h2>Связь</h2>
+          <h2>Get in touch</h2>
           <p>
-            Можно написать через форму или напрямую, если контакты уже указаны.
+            Use the form or contact us directly using the details below.
           </p>
 
           <div class="direct-contacts">
             {% if contact_phone %}
               <a href="tel:{{ contact_phone }}">
-                <small>Телефон</small>
+                <small>Phone</small>
                 <strong>{{ contact_phone }}</strong>
               </a>
             {% endif %}
@@ -83,9 +73,16 @@
               </a>
             {% endif %}
 
+            {% if contact_whatsapp %}
+              <a href="https://wa.me/{{ contact_whatsapp }}" target="_blank" rel="noopener">
+                <small>WhatsApp</small>
+                <strong>Message us on WhatsApp</strong>
+              </a>
+            {% endif %}
+
             {% if not contact_phone and not contact_email and not contact_telegram %}
               <div class="empty-contact-note">
-                Прямые контакты пока не указаны в настройках. Используйте форму справа.
+                Direct contact details are not available yet. Please use the form.
               </div>
             {% endif %}
           </div>
@@ -93,105 +90,54 @@
 
         <article class="contact-info-card">
           <span class="card-number">02</span>
-          <h2>Формат</h2>
-          <p>Индивидуальные уроки, курсы для новичков и онлайн-занятия.</p>
+          <h2>Format</h2>
+          <p>Individual online guitar lessons.</p>
         </article>
 
         <article class="contact-info-card">
           <span class="card-number">03</span>
-          <h2>Локация</h2>
-          <p>{{ contact_address }}</p>
+          <h2>Where we meet</h2>
+          <p>Online — join from wherever you are.</p>
         </article>
 
         <article class="contact-info-card">
           <span class="card-number">04</span>
-          <h2>Время</h2>
+          <h2>Hours</h2>
           <p>{{ contact_working_hours }}</p>
         </article>
       </aside>
 
       <main class="contact-form-card" id="contact-form">
-        <p class="section-kicker">Send a message</p>
-        <h2>Оставить сообщение</h2>
+        <p class="section-kicker">Let’s talk</p>
+        <h2>Questions or ready for a lesson?</h2>
         <p>
-          Заполните форму — сообщение сохранится в админке, чтобы заявка не потерялась.
+          Choose a lesson or consultation and leave your name, email and phone number. We will use these details to respond to your request. Fields marked * are required.
         </p>
 
-        <form method="post" class="contact-form">
+        <form method="post" action="/contacts/#contact-form" class="contact-form">
           {% csrf_token %}
 
           {% for hidden in form.hidden_fields %}
             {{ hidden }}
           {% endfor %}
 
+          {% if form.website.errors %}<div class="field-error" role="alert">{{ form.website.errors|striptags }}</div>{% endif %}
           {% if form.non_field_errors %}
             <div class="field-error form-error">
               {{ form.non_field_errors|striptags }}
             </div>
           {% endif %}
 
-          <div class="form-grid two-columns">
-            <label>
-              <span>{{ form.name.label }}</span>
-              {{ form.name }}
-              {% if form.name.errors %}
-                <small class="field-error">{{ form.name.errors|striptags }}</small>
-              {% endif %}
+          {% for field in form.visible_fields %}
+            <label for="{{ field.id_for_label }}">
+              <span>{{ field.label }}{% if field.field.required %} *{% endif %}</span>
+              {{ field }}
+              {% if field.errors %}<small class="field-error">{{ field.errors|striptags }}</small>{% endif %}
             </label>
-
-            <label>
-              <span>{{ form.preferred_contact.label }}</span>
-              {{ form.preferred_contact }}
-              {% if form.preferred_contact.errors %}
-                <small class="field-error">{{ form.preferred_contact.errors|striptags }}</small>
-              {% endif %}
-            </label>
-          </div>
-
-          <div class="form-grid two-columns">
-            <label>
-              <span>{{ form.email.label }}</span>
-              {{ form.email }}
-              {% if form.email.errors %}
-                <small class="field-error">{{ form.email.errors|striptags }}</small>
-              {% endif %}
-            </label>
-
-            <label>
-              <span>{{ form.phone.label }}</span>
-              {{ form.phone }}
-              {% if form.phone.errors %}
-                <small class="field-error">{{ form.phone.errors|striptags }}</small>
-              {% endif %}
-            </label>
-          </div>
-
-          <label>
-            <span>{{ form.telegram.label }}</span>
-            {{ form.telegram }}
-            {% if form.telegram.errors %}
-              <small class="field-error">{{ form.telegram.errors|striptags }}</small>
-            {% endif %}
-          </label>
-
-          <label>
-            <span>{{ form.subject.label }}</span>
-            {{ form.subject }}
-            {% if form.subject.errors %}
-              <small class="field-error">{{ form.subject.errors|striptags }}</small>
-            {% endif %}
-          </label>
-
-          <label>
-            <span>{{ form.message.label }}</span>
-            {{ form.message }}
-            {% if form.message.errors %}
-              <small class="field-error">{{ form.message.errors|striptags }}</small>
-            {% endif %}
-          </label>
+          {% endfor %}
 
           <button type="submit" class="contact-submit">
-            Отправить сообщение
+            Send request
           </button>
         </form>
       </main>
@@ -200,20 +146,20 @@
     <section class="contact-steps">
       <div class="contact-step">
         <span>01</span>
-        <h3>Вы пишете</h3>
-        <p>Указываете цель: научиться с нуля, подтянуть технику, разобрать песни или заниматься онлайн.</p>
+        <h3>Tell us your goal</h3>
+        <p>Start from scratch, improve technique, learn songs or study online.</p>
       </div>
 
       <div class="contact-step">
         <span>02</span>
-        <h3>Мы уточняем уровень</h3>
-        <p>Задаём несколько вопросов и подбираем формат: курс, индивидуальный урок или пробное занятие.</p>
+        <h3>We assess your level</h3>
+        <p>We discuss your experience, answer your questions and agree on a suitable time.</p>
       </div>
 
       <div class="contact-step">
         <span>03</span>
-        <h3>Начинаем занятия</h3>
-        <p>После записи вы получаете доступ к материалам курса и плану обучения.</p>
+        <h3>Start learning</h3>
+        <p>Meet your teacher online and work towards your goals with an individual learning plan.</p>
       </div>
     </section>
 

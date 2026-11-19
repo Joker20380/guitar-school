@@ -1,0 +1,12 @@
+{% if messages %}
+<div class="system-notifications" aria-live="polite" aria-atomic="true">
+  {% for message in messages %}
+  <div class="system-notification {{ message.tags|default:'info' }}"
+       role="{% if 'error' in message.tags or 'warning' in message.tags %}alert{% else %}status{% endif %}">
+    <span class="system-notification__icon" aria-hidden="true"></span>
+    <span class="system-notification__text">{{ message }}</span>
+    <button class="system-notification__close" type="button" aria-label="Close notification">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

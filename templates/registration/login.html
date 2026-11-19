@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Вход ученика{% endblock %}
+{% block title %}Student login{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -16,16 +16,16 @@
           <span>Student login</span>
         </div>
 
-        <h1>Вход ученика</h1>
+        <h1>Student login</h1>
         <p class="course-lead">
-          Войдите, чтобы открыть свои курсы, уроки и прогресс обучения.
+          Sign in to access your courses, lessons and learning progress.
         </p>
       </article>
 
       <aside class="course-sidebar">
         <div class="apply-card">
           <p class="section-kicker">Login</p>
-          <h2>Аккаунт</h2>
+          <h2>Account</h2>
 
           <form method="post" class="course-form">
             {% csrf_token %}
@@ -41,7 +41,7 @@
             {% endfor %}
 
             <button class="course-submit" type="submit">
-              Войти
+              Sign in
             </button>
           </form>
         </div>

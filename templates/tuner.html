@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Гитарный тюнер онлайн{% endblock %}
-{% block description %}Онлайн-тюнер для настройки гитары через микрофон. Стандартный строй E2 A2 D3 G3 B3 E4 с выбором эталона 432 или 440 Гц.{% endblock %}
+{% block title %}Online guitar tuner{% endblock %}
+{% block description %}Online microphone guitar tuner. Standard E2 A2 D3 G3 B3 E4 tuning with 432 or 440 Hz reference pitch.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'tuner/css/tuner.css' %}">
@@ -12,42 +12,59 @@
 <section class="tuner-page">
   <div class="tuner-card">
     <div class="tuner-top">
-      <a class="back-link" href="/">← На главную</a>
-      <span class="status-pill" id="statusPill">Микрофон выключен</span>
+      <a class="back-link" href="/">← Home</a>
+      <span class="status-pill" id="statusPill">Microphone off</span>
     </div>
 
     <header class="tuner-header">
       <p class="eyebrow">Vintage acoustic tuner</p>
-      <h1>Гитарный тюнер</h1>
+      <h1>Guitar tuner</h1>
       <p class="lead">
-        Сыграй открытую струну и держи стрелку по центру. Зелёный центр означает, что струна настроена.
+        Play an open string and keep the needle centered. Green means the string is in tune.
       </p>
     </header>
 
     <section class="reference-pitch" aria-labelledby="referencePitchTitle">
       <div class="reference-pitch-copy">
-        <span id="referencePitchTitle">Эталонная частота</span>
-        <strong id="referencePitchValue">A4 = 432 Гц</strong>
+        <span id="referencePitchTitle">Reference pitch</span>
+        <strong id="referencePitchValue">A4 = 432 Hz</strong>
       </div>
 
-      <div class="reference-pitch-switch" role="group" aria-label="Выбор эталонной частоты">
+      <div class="reference-pitch-switch" role="group" aria-label="Reference pitch selection">
         <button type="button" class="reference-pitch-button active"
                 data-reference-pitch="432" aria-pressed="true">
-          432 Гц
+          432 Hz
         </button>
         <button type="button" class="reference-pitch-button"
                 data-reference-pitch="440" aria-pressed="false">
-          440 Гц
+          440 Hz
         </button>
       </div>
     </section>
 
+    <section class="microphone-control" aria-labelledby="microphoneSensitivityTitle">
+      <div class="microphone-control-copy">
+        <span id="microphoneSensitivityTitle">Microphone sensitivity</span>
+        <strong id="microphoneSensitivityValue">60%</strong>
+      </div>
+      <label class="microphone-slider" for="microphoneSensitivity">
+        <span>Lower</span>
+        <input id="microphoneSensitivity" type="range" min="10" max="100" step="1" value="60">
+        <span>Higher</span>
+      </label>
+      <div class="microphone-level" aria-label="Input signal level">
+        <span class="microphone-level-track"><i id="microphoneLevelFill"></i></span>
+        <span id="microphoneLevelText">The input level appears after activation</span>
+      </div>
+      <p>If the meter turns red or the note jumps, move the slider left.</p>
+    </section>
+
     <div class="actions actions-top">
-      <button class="primary-button" id="startButton">Включить тюнер</button>
-      <button class="secondary-button" id="stopButton" disabled>Выключить</button>
+      <button class="primary-button" id="startButton">Start tuner</button>
+      <button class="secondary-button" id="stopButton" disabled>Stop</button>
     </div>
 
-    <section class="instrument-panel" aria-label="Индикаторы настройки">
+    <section class="instrument-panel" aria-label="Tuning indicators">
       <article class="vu-meter vu-meter-main">
         <div class="vu-labels">
           <span>FLAT</span>
@@ -86,7 +103,7 @@
           <div class="vu-pivot"></div>
         </div>
 
-        <div class="tune-led-strip" id="tuneLedStrip" aria-label="Индикатор точности настройки">
+        <div class="tune-led-strip" id="tuneLedStrip" aria-label="Tuning accuracy indicator">
           <span data-pos="-12"></span>
           <span data-pos="-11"></span>
           <span data-pos="-10"></span>
@@ -126,7 +143,7 @@
             <div class="detected-note" id="detectedNote">—</div>
 
             <div class="string-meta">
-              <div class="target-note" id="targetNote">Автоопределение</div>
+              <div class="target-note" id="targetNote">Auto detect</div>
               <div class="frequency-row">
                 <span id="frequencyValue">0.00 Hz</span>
                 <span id="centsValue">0 cents</span>
@@ -169,16 +186,16 @@
           </div>
 
           <div class="vu-lamps single">
-            <span id="stabilityLamp">Стабильность</span>
+            <span id="stabilityLamp">Stability</span>
           </div>
         </article>
       </aside>
     </section>
 
-    <div class="hint" id="tuneHint">Нажми «Включить тюнер»</div>
+    <div class="hint" id="tuneHint">Press “Start tuner”</div>
 
     <section class="strings">
-      <button class="string-button is-auto active" data-note="AUTO" data-frequency="0">Авто</button>
+      <button class="string-button is-auto active" data-note="AUTO" data-frequency="0">Auto</button>
       <button class="string-button" data-note="E2" data-frequency="82.41">6 · E2</button>
       <button class="string-button" data-note="A2" data-frequency="110.00">5 · A2</button>
       <button class="string-button" data-note="D3" data-frequency="146.83">4 · D3</button>
@@ -187,7 +204,7 @@
       <button class="string-button" data-note="E4" data-frequency="329.63">1 · E4</button>
     </section>
 
-    <section class="fretboard-panel" aria-label="Гриф гитары">
+    <section class="fretboard-panel" aria-label="Guitar fretboard">
       <div class="fretboard-title">
         <span>Standard tuning</span>
         <strong>E A D G B E</strong>
@@ -221,10 +238,49 @@
         </div>
       </div>
     </section>
+
+    <section class="metronome-panel" id="metronomePanel" aria-labelledby="metronomeTitle">
+      <div class="metronome-heading">
+        <div>
+          <p class="eyebrow">Rhythm trainer</p>
+          <h2 id="metronomeTitle">Metronome</h2>
+        </div>
+        <span class="metronome-status" id="metronomeStatus">Stopped</span>
+      </div>
+
+      <div class="metronome-display">
+        <div class="metronome-tempo">
+          <button type="button" class="tempo-step" id="tempoDown" aria-label="Decrease tempo">−</button>
+          <label class="tempo-value" for="tempoInput">
+            <input id="tempoInput" type="number" min="40" max="220" step="1" value="90" inputmode="numeric">
+            <span>BPM</span>
+          </label>
+          <button type="button" class="tempo-step" id="tempoUp" aria-label="Increase tempo">+</button>
+        </div>
+
+        <label class="meter-select">
+          <span>Time signature</span>
+          <select id="meterSelect">
+            <option value="2">2/4</option>
+            <option value="3">3/4</option>
+            <option value="4" selected>4/4</option>
+            <option value="6">6/8</option>
+          </select>
+        </label>
+
+        <div class="metronome-beats" id="metronomeBeats" aria-label="Beats"></div>
+      </div>
+
+      <div class="metronome-actions">
+        <button type="button" class="primary-button" id="metronomeToggle">Start metronome</button>
+        <button type="button" class="secondary-button" id="tapTempoButton">Tap tempo</button>
+      </div>
+    </section>
   </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'tuner/js/tuner.js' %}"></script>
+<script src="{% static 'tuner/js/metronome.js' %}"></script>
 {% endblock %}

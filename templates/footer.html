@@ -1,25 +1,27 @@
+{% load static %}
 <footer class="site-footer" id="contact">
-    <section class="footer-cta">
-        <div class="container">
-            <div class="footer-cta-inner reveal">
-                <p class="section-kicker">Первый шаг</p>
-                <h2>Настрой гитару и начни играть чище</h2>
-                <p>
-                    Хорошая практика начинается с правильного звука. Используй онлайн-тюнер,
-                    затем переходи к аккордам, ритму и первым песням.
-                </p>
-                <div class="footer-actions">
-                    <a class="btn btn-primary" href="/tuner/">Открыть тюнер</a>
-                    <a class="btn btn-outline" href="/">На главную</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="footer-bottom">
-        <div class="container footer-bottom-inner">
-            <span>© {% now "Y" %} Guitar School</span>
-            <span>Уроки гитары · Тюнер · Практика</span>
-        </div>
+  <section class="footer-cta"><div class="container"><div class="footer-cta-inner reveal">
+    <h2>Your first lesson is free</h2><p>Curious about Russian through music, or simply want to play guitar? Meet your teacher online and try an individual lesson.</p>
+    <div class="footer-actions">
+      <a class="btn btn-primary" href="/contacts/#contact-form">Book your first free lesson</a>
+      <a class="btn btn-outline" href="/tuner/">Guitar tuner</a>
     </div>
+  </div></div></section>
+  <div class="footer-links"><div class="container">
+    <a class="footer-brand" href="/" aria-label="Phoenix Song — Home">
+      <img src="{% static 'images/branding/phoenix-emblem-220.webp' %}"
+           srcset="{% static 'images/branding/phoenix-emblem-440.webp' %} 2x"
+           width="220" height="267" alt="Phoenix Song" loading="lazy" decoding="async">
+    </a>
+    <nav aria-label="Footer navigation"><a href="/">Home</a><a href="/courses/teachers/">Teachers</a><a href="/journal/">Music Journal</a><a href="/contacts/">Contact</a></nav>
+    <div class="footer-socials" aria-label="Contact and social links">
+      <a href="tel:+79161712233" aria-label="Call +7 916 171 2233" title="Call">☎</a>
+      <a href="https://t.me/elya_pokrovskaya" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram">➤</a>
+      <a href="https://wa.me/79161712233" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">◉</a>
+      <span class="footer-phone">+7 916 171 2233</span>
+    </div>
+  </div></div>
+  <div class="footer-bottom"><div class="container footer-bottom-inner">
+    <span>© {% now "Y" %} Phoenix Song</span><span>Guitar · Music · Russian through songs</span>
+  </div></div>
 </footer>

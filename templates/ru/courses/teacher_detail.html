@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ teacher.full_name }}{% endblock %}
+{% block description %}Преподаватель {{ teacher.full_name }}: навыки, опыт, уровень преподавания и формат занятий.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="course-detail-page teacher-detail-page">
+  <div class="container">
+    <div class="course-detail-layout">
+      <article class="course-main">
+        <div class="course-badges">
+          <span>{{ teacher.get_teaching_level_display }}</span>
+          <span>{{ teacher.get_lesson_format_display }}</span>
+          {% if teacher.experience_years %}
+            <span>Опыт {{ teacher.experience_years }} лет</span>
+          {% endif %}
+        </div>
+
+        <h1>{{ teacher.full_name }}</h1>
+        <p class="course-lead">{{ teacher.short_bio }}</p>
+
+        {% if teacher.bio %}
+          <div class="lesson-content">
+            {{ teacher.bio|linebreaks }}
+          </div>
+        {% endif %}
+
+        {% if teacher.skills.all %}
+          <section class="lesson-list">
+            <h2>Навыки и направления</h2>
+            <div class="teacher-skills teacher-skills-large">
+              {% for skill in teacher.skills.all %}
+                <span>{{ skill.name }}</span>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+      </article>
+
+      <aside class="course-sidebar">
+        <div class="apply-card">
+          {% if teacher.image_url %}
+            <img class="teacher-profile-photo" src="{{ teacher.image_url }}" alt="{{ teacher.full_name }}" loading="lazy">
+          {% else %}
+            <div class="teacher-profile-photo teacher-photo-empty">
+              {{ teacher.full_name|slice:":1" }}
+            </div>
+          {% endif %}
+
+          <p class="section-kicker">Профиль преподавателя</p>
+          <h2>Занятия с преподавателем</h2>
+          <p>
+            Если вы уже ученик школы, заявку на занятия с этим преподавателем
+            можно отправить из личного кабинета курса.
+          </p>
+
+          <a class="course-submit" href="/courses/my/">
+            Перейти в личный кабинет
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

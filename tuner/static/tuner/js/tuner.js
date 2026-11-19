@@ -1,4 +1,6 @@
 (() => {
+  const isRussian = document.documentElement.lang.toLowerCase().startsWith("ru");
+  const ui = (english, russian) => isRussian ? russian : english;
   const BASE_REFERENCE_PITCH = 440;
   const SUPPORTED_REFERENCE_PITCHES = [432, 440];
   let storedReferencePitch = null;
@@ -10,14 +12,23 @@
   let referencePitch = SUPPORTED_REFERENCE_PITCHES.includes(storedReferencePitch)
     ? storedReferencePitch
     : 432;
+  let microphoneSensitivity = 60;
+  try {
+    const storedSensitivity = Number(window.localStorage.getItem("tunerMicrophoneSensitivity"));
+    if (storedSensitivity >= 10 && storedSensitivity <= 100) {
+      microphoneSensitivity = storedSensitivity;
+    }
+  } catch (error) {
+    console.warn("Could not read microphone sensitivity:", error);
+  }
 
   const STRINGS = [
-    { label: "6-я струна", note: "E2", baseFrequency: 82.41 },
-    { label: "5-я струна", note: "A2", baseFrequency: 110.00 },
-    { label: "4-я струна", note: "D3", baseFrequency: 146.83 },
-    { label: "3-я струна", note: "G3", baseFrequency: 196.00 },
-    { label: "2-я струна", note: "B3", baseFrequency: 246.94 },
-    { label: "1-я струна", note: "E4", baseFrequency: 329.63 },
+    { label: ui("6th string", "6-я струна"), note: "E2", baseFrequency: 82.41 },
+    { label: ui("5th string", "5-я струна"), note: "A2", baseFrequency: 110.00 },
+    { label: ui("4th string", "4-я струна"), note: "D3", baseFrequency: 146.83 },
+    { label: ui("3rd string", "3-я струна"), note: "G3", baseFrequency: 196.00 },
+    { label: ui("2nd string", "2-я струна"), note: "B3", baseFrequency: 246.94 },
+    { label: ui("1st string", "1-я струна"), note: "E4", baseFrequency: 329.63 },
   ].map((item) => ({
     ...item,
     frequency: item.baseFrequency * referencePitch / BASE_REFERENCE_PITCH,
@@ -38,6 +49,10 @@
   const statusPill = document.getElementById("statusPill");
   const startButton = document.getElementById("startButton");
   const stopButton = document.getElementById("stopButton");
+  const sensitivityInput = document.getElementById("microphoneSensitivity");
+  const sensitivityValue = document.getElementById("microphoneSensitivityValue");
+  const microphoneLevelFill = document.getElementById("microphoneLevelFill");
+  const microphoneLevelText = document.getElementById("microphoneLevelText");
 
   const stringButtons = document.querySelectorAll(".string-button");
   const referenceButtons = document.querySelectorAll(".reference-pitch-button");
@@ -50,6 +65,7 @@
   let audioContext = null;
   let analyser = null;
   let source = null;
+  let inputGain = null;
   let stream = null;
   let buffer = null;
   let rafId = null;
@@ -68,6 +84,40 @@
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
+  }
+
+  function sensitivityToGain(value) {
+    return 0.1 + ((value - 10) / 90) * 1.4;
+  }
+
+  function applyMicrophoneSensitivity(value, persist = true) {
+    microphoneSensitivity = clamp(Number(value) || 60, 10, 100);
+    sensitivityInput.value = String(microphoneSensitivity);
+    sensitivityValue.textContent = `${microphoneSensitivity}%`;
+    if (inputGain && audioContext) {
+      inputGain.gain.setTargetAtTime(
+        sensitivityToGain(microphoneSensitivity),
+        audioContext.currentTime,
+        0.015
+      );
+    }
+    if (persist) {
+      try {
+        window.localStorage.setItem("tunerMicrophoneSensitivity", String(microphoneSensitivity));
+      } catch (error) {
+        console.warn("Could not save microphone sensitivity:", error);
+      }
+    }
+  }
+
+  function updateMicrophoneLevel(rms) {
+    const level = clamp(rms / 0.32, 0, 1);
+    microphoneLevelFill.style.width = `${Math.round(level * 100)}%`;
+    const tooLoud = rms > 0.30;
+    microphoneLevelFill.classList.toggle("is-hot", tooLoud);
+    microphoneLevelText.textContent = tooLoud
+      ? ui("Too loud — reduce sensitivity", "Слишком громко — уменьши чувствительность")
+      : rms > 0.018 ? ui("Level is good", "Уровень хороший") : ui("Signal is quiet", "Сигнал тихий");
   }
 
   function median(values) {
@@ -361,13 +411,13 @@
     tuneHint.className = "hint";
 
     if (Math.abs(cents) <= 4) {
-      tuneHint.textContent = "Точно. Струна настроена.";
+      tuneHint.textContent = ui("In tune. The string is ready.", "Точно. Струна настроена.");
       tuneHint.classList.add("ok");
       return;
     }
 
     if (Math.abs(cents) <= 9) {
-      tuneHint.textContent = "Почти точно. Доведи стрелку в центр.";
+      tuneHint.textContent = ui("Almost there. Center the needle.", "Почти точно. Доведи стрелку в центр.");
       tuneHint.classList.add("near");
       return;
     }
@@ -375,9 +425,9 @@
     tuneHint.classList.add("bad");
 
     if (cents < 0) {
-      tuneHint.textContent = "Ниже нужной ноты. Подтяни струну.";
+      tuneHint.textContent = ui("Too low. Tighten the string.", "Ниже нужной ноты. Подтяни струну.");
     } else {
-      tuneHint.textContent = "Выше нужной ноты. Немного ослабь струну.";
+      tuneHint.textContent = ui("Too high. Loosen the string slightly.", "Выше нужной ноты. Немного ослабь струну.");
     }
   }
 
@@ -399,7 +449,7 @@
     fretStrings.forEach((string) => string.classList.remove("active"));
   }
 
-  function setWaitingState(message = "Сыграй открытую струну") {
+  function setWaitingState(message = ui("Play an open string", "Сыграй открытую струну")) {
     detectedNote.textContent = "—";
     frequencyValue.textContent = "0.00 Hz";
     centsValue.textContent = "0 cents";
@@ -414,7 +464,7 @@
     tuneHint.textContent = message;
 
     if (!selectedTarget) {
-      targetNote.textContent = "Автоопределение";
+      targetNote.textContent = ui("Auto detect", "Автоопределение");
       clearFretboard();
     }
   }
@@ -440,7 +490,7 @@
     });
 
     if (referencePitchValue) {
-      referencePitchValue.textContent = `A4 = ${referencePitch} Гц`;
+      referencePitchValue.textContent = ui(`A4 = ${referencePitch} Hz`, `A4 = ${referencePitch} Гц`);
     }
 
     if (selectedTarget) {
@@ -450,7 +500,7 @@
     centsHistory = [];
     displayedCents = 0;
     lastCents = null;
-    setWaitingState("Сыграй открытую струну");
+    setWaitingState(ui("Play an open string", "Сыграй открытую струну"));
 
     if (persist) {
       try {
@@ -564,6 +614,7 @@
     analyser.getFloatTimeDomainData(buffer);
 
     const rms = calculateRms(buffer);
+    updateMicrophoneLevel(rms);
     const pitch = autoCorrelate(buffer, audioContext.sampleRate, rms);
 
     if (pitch && pitch > 60 && pitch < 420) {
@@ -611,9 +662,12 @@
 
       buffer = new Float32Array(analyser.fftSize);
       source = audioContext.createMediaStreamSource(stream);
-      source.connect(analyser);
+      inputGain = audioContext.createGain();
+      inputGain.gain.value = sensitivityToGain(microphoneSensitivity);
+      source.connect(inputGain);
+      inputGain.connect(analyser);
 
-      statusPill.textContent = "Микрофон включён";
+      statusPill.textContent = ui("Microphone on", "Микрофон включён");
       statusPill.classList.add("active");
 
       startButton.disabled = true;
@@ -624,12 +678,12 @@
       lockFrames = 0;
       wasLocked = false;
 
-      setWaitingState("Сыграй открытую струну");
+      setWaitingState(ui("Play an open string", "Сыграй открытую струну"));
       tick();
     } catch (error) {
-      statusPill.textContent = "Нет доступа к микрофону";
+      statusPill.textContent = ui("Microphone access denied", "Нет доступа к микрофону");
       statusPill.classList.remove("active");
-      tuneHint.textContent = "Разреши доступ к микрофону в браузере.";
+      tuneHint.textContent = ui("Allow microphone access in your browser.", "Разреши доступ к микрофону в браузере.");
       console.error(error);
     }
   }
@@ -652,7 +706,11 @@
 
     analyser = null;
     source = null;
+    inputGain = null;
     buffer = null;
+    microphoneLevelFill.style.width = "0%";
+    microphoneLevelFill.classList.remove("is-hot");
+    microphoneLevelText.textContent = ui("The input level appears after activation", "Уровень появится после включения");
     lastCents = null;
     smoothedTune = 0;
     smoothedStability = 0;
@@ -662,13 +720,13 @@
     lockFrames = 0;
     wasLocked = false;
 
-    statusPill.textContent = "Микрофон выключен";
+    statusPill.textContent = ui("Microphone off", "Микрофон выключен");
     statusPill.classList.remove("active");
 
     startButton.disabled = false;
     stopButton.disabled = true;
 
-    setWaitingState("Нажми «Включить тюнер»");
+    setWaitingState(ui("Press “Start tuner”", "Нажми «Включить тюнер»"));
   }
 
   stringButtons.forEach((button) => {
@@ -686,7 +744,7 @@
         stringButtons.forEach((item) => item.classList.remove("active"));
         button.classList.add("active");
 
-        targetNote.textContent = "Автоопределение";
+        targetNote.textContent = ui("Auto detect", "Автоопределение");
         clearFretboard();
         return;
       }
@@ -709,9 +767,13 @@
 
   startButton.addEventListener("click", startTuner);
   stopButton.addEventListener("click", stopTuner);
+  sensitivityInput.addEventListener("input", () => {
+    applyMicrophoneSensitivity(sensitivityInput.value);
+  });
 
+  applyMicrophoneSensitivity(microphoneSensitivity, false);
   applyReferencePitch(referencePitch, false);
   setNeedle(tuneNeedle, 0);
   setNeedle(stabilityNeedle, -1);
-  setWaitingState("Нажми «Включить тюнер»");
+  setWaitingState(ui("Press “Start tuner”", "Нажми «Включить тюнер»"));
 })();

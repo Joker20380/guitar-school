@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}{{ teacher.full_name }}{% endblock %}
-{% block description %}Преподаватель {{ teacher.full_name }}: навыки, опыт, уровень преподавания и формат занятий.{% endblock %}
+{% block description %}Teacher {{ teacher.full_name }}: skills, experience, teaching level and lesson format.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -17,7 +17,7 @@
           <span>{{ teacher.get_teaching_level_display }}</span>
           <span>{{ teacher.get_lesson_format_display }}</span>
           {% if teacher.experience_years %}
-            <span>Опыт {{ teacher.experience_years }} лет</span>
+            <span>{{ teacher.experience_years }} years of experience</span>
           {% endif %}
         </div>
 
@@ -32,7 +32,7 @@
 
         {% if teacher.skills.all %}
           <section class="lesson-list">
-            <h2>Навыки и направления</h2>
+            <h2>Skills and styles</h2>
             <div class="teacher-skills teacher-skills-large">
               {% for skill in teacher.skills.all %}
                 <span>{{ skill.name }}</span>
@@ -44,8 +44,8 @@
 
       <aside class="course-sidebar">
         <div class="apply-card">
-          {% if teacher.photo_url %}
-            <div class="teacher-profile-photo" style="background-image: url('{{ teacher.photo_url }}');"></div>
+          {% if teacher.image_url %}
+            <img class="teacher-profile-photo" src="{{ teacher.image_url }}" alt="{{ teacher.full_name }}" loading="lazy">
           {% else %}
             <div class="teacher-profile-photo teacher-photo-empty">
               {{ teacher.full_name|slice:":1" }}
@@ -53,14 +53,13 @@
           {% endif %}
 
           <p class="section-kicker">Teacher profile</p>
-          <h2>Занятия с преподавателем</h2>
+          <h2>Lessons with this teacher</h2>
           <p>
-            Если вы уже ученик школы, заявку на занятия с этим преподавателем
-            можно отправить из личного кабинета курса.
+            If you are already enrolled, request lessons with this teacher from your student area.
           </p>
 
           <a class="course-submit" href="/courses/my/">
-            Перейти в личный кабинет
+            Open student area
           </a>
         </div>
       </aside>

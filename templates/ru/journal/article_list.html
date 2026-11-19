@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Музыкальный журнал | Phoenix Song{% endblock %}
+{% block description %}Статьи о гитаре, музыке, песнях и практике от Phoenix Song.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'journal/css/journal.css' %}">{% endblock %}
+{% block content %}
+<section class="journal-page"><div class="container">
+  <header class="journal-hero"><span class="section-kicker">Phoenix Song</span><h1>Музыкальный журнал</h1><p>Истории, практика гитары, песни и идеи нашего музыкального сообщества.</p></header>
+  {% if articles %}<div class="journal-grid">
+    {% for article in articles %}<article class="journal-card">
+      {% if article.photo %}<a href="{{ article.get_absolute_url }}"><img src="{{ article.photo }}" alt="{{ article.title_ru|default:article.title }}" loading="lazy"></a>{% endif %}
+      <div class="journal-card-body"><span class="journal-card-date">{{ article.published_at|date:"j E Y" }}</span><h2><a href="{{ article.get_absolute_url }}">{{ article.title_ru|default:article.title }}</a></h2>{% if article.excerpt_ru %}<p>{{ article.excerpt_ru }}</p>{% elif article.excerpt %}<p>{{ article.excerpt }}</p>{% endif %}<a class="journal-read-more" href="{{ article.get_absolute_url }}">Читать статью →</a></div>
+    </article>{% endfor %}
+  </div>{% else %}<div class="journal-empty"><h2>Статьи скоро появятся</h2><p>Мы готовим первые материалы для журнала.</p></div>{% endif %}
+</div></section>
+{% endblock %}

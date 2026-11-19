@@ -1,10 +1,12 @@
 from django.urls import path
 
 from . import views
+from .downloads import private_file
 
 app_name = "courses"
 
 urlpatterns = [
+    path("files/<path:name>", private_file, name="private_file"),
     path("teachers/", views.teacher_list, name="teacher_list"),
     path("teachers/<slug:slug>/", views.teacher_detail, name="teacher_detail"),
     path("my/<slug:slug>/teachers/", views.my_course_teachers, name="my_course_teachers"),

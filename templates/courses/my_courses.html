@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Мои курсы{% endblock %}
+{% block title %}My courses{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -12,8 +12,8 @@
   <div class="container">
     <header class="courses-hero">
       <p class="section-kicker">Student area</p>
-      <h1>Мои курсы</h1>
-      <p>Здесь отображаются курсы, к которым вам открыт доступ.</p>
+      <h1>My courses</h1>
+      <p>Courses available to you appear here.</p>
     </header>
 
     {% if enrollments %}
@@ -22,7 +22,11 @@
           <article class="course-card">
             <div class="course-card-top">
               <span>{{ enrollment.course.get_level_display }}</span>
-              <strong>{{ enrollment.progress_percent }}%</strong>
+              {% if enrollment.is_expired %}
+                <strong>Access expired</strong>
+              {% else %}
+                <strong>{{ enrollment.progress_percent }}%</strong>
+              {% endif %}
             </div>
 
             <h2>{{ enrollment.course.title }}</h2>
@@ -32,16 +36,25 @@
               <span style="width: {{ enrollment.progress_percent }}%;"></span>
             </div>
 
-            <a class="course-link" href="{% url 'courses:student_course' enrollment.course.slug %}">
-              Продолжить
-            </a>
+            {% if enrollment.is_expired %}
+              {% if enrollment.access_expires_at %}
+                <p>Access ended {{ enrollment.access_expires_at|date:"d.m.Y" }}.</p>
+              {% endif %}
+              <a class="course-link" href="{% url 'contacts:contact' %}">
+                Request an extension
+              </a>
+            {% else %}
+              <a class="course-link" href="{% url 'courses:student_course' enrollment.course.slug %}">
+                Continue
+              </a>
+            {% endif %}
           </article>
         {% endfor %}
       </div>
     {% else %}
       <div class="empty-courses">
-        <h2>Пока нет открытых курсов</h2>
-        <p>Когда преподаватель выдаст доступ, курс появится здесь.</p>
+        <h2>No courses yet</h2>
+        <p>Your course will appear here when a teacher grants access.</p>
       </div>
     {% endif %}
   </div>

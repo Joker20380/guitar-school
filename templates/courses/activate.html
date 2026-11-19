@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Активация доступа{% endblock %}
+{% block title %}Access activation{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
@@ -13,21 +13,23 @@
     <div class="course-detail-layout">
       <article class="course-main">
         <div class="course-badges">
-          <span>Активация</span>
+          <span>Activation</span>
           <span>{{ course.title }}</span>
         </div>
 
-        <h1>Создайте пароль</h1>
+        <h1>Create a password</h1>
         <p class="course-lead">
-          После установки пароля вы сможете входить в личный кабинет ученика
-          и видеть материалы курса.
+          After setting a password, you can sign in and access your course materials.
         </p>
+        {% if enrollment.invitation_expires_at %}
+          <p>This invitation is valid until {{ enrollment.invitation_expires_at|date:"d.m.Y H:i" }}.</p>
+        {% endif %}
       </article>
 
       <aside class="course-sidebar">
         <div class="apply-card">
           <p class="section-kicker">Student account</p>
-          <h2>Пароль</h2>
+          <h2>Password</h2>
 
           <form method="post" class="course-form">
             {% csrf_token %}
@@ -43,7 +45,7 @@
             {% endfor %}
 
             <button class="course-submit" type="submit">
-              Активировать доступ
+              Activate access
             </button>
           </form>
         </div>

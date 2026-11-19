@@ -8,9 +8,12 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.db.models import Prefetch
 
+from .access import resolve_course_access
 from .forms import CourseRequestForm, TeacherRequestForm
 from .models import Course, CourseRequest, CourseEnrollment, Lesson, LessonProgress, Teacher, TeacherAssignment, TeacherRequest
+from .models import LessonMaterial
 
 
 REQUEST_COOLDOWN_SECONDS = 30
@@ -56,6 +59,30 @@ def send_verification_email(request, course_request):
 
     course_request.verification_sent_at = timezone.now()
     course_request.save(update_fields=["verification_sent_at"])
+
+
+def send_course_request_notification(course_request):
+    recipient = getattr(settings, "CONTACT_NOTIFY_EMAIL", "")
+    if not recipient:
+        return False
+
+    send_mail(
+        subject=f"Новая заявка на курс: {course_request.course.title}",
+        message=(
+            "На сайте школы создана новая заявка.\n\n"
+            f"Курс: {course_request.course.title}\n"
+            f"Имя: {course_request.name}\n"
+            f"Email: {course_request.email or '-'}\n"
+            f"Телефон: {course_request.phone or '-'}\n"
+            f"Мессенджер: {course_request.messenger or '-'}\n"
+            f"Канал подтверждения: {course_request.get_verification_channel_display()}\n"
+            f"Комментарий: {course_request.message or '-'}\n"
+        ),
+        from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
+        recipient_list=[recipient],
+        fail_silently=False,
+    )
+    return True
 
 
 def course_list(request):
@@ -125,6 +152,14 @@ def course_apply(request, slug):
                 "Заявка создана. Мы подтвердим её через выбранный телефон или мессенджер.",
             )
 
+        try:
+            send_course_request_notification(course_request)
+        except Exception:
+            messages.warning(
+                request,
+                "Заявка сохранена, но служебное уведомление школе не отправилось.",
+            )
+
         return redirect(course.get_absolute_url())
 
     messages.error(
@@ -172,11 +207,18 @@ def activate_student_account(request, token):
     enrollment = get_object_or_404(
         CourseEnrollment.objects.select_related("user", "course"),
         invitation_token=token,
-        is_active=True,
     )
 
-    if enrollment.is_expired:
-        messages.error(request, "Срок доступа к курсу истёк.")
+    if enrollment.invitation_used_at:
+        messages.info(request, "Приглашение уже использовано. Войдите в личный кабинет.")
+        return redirect("login")
+
+    if enrollment.invitation_is_expired:
+        messages.error(request, "Срок действия приглашения истёк. Запросите новое приглашение у школы.")
+        return redirect("courses:list")
+
+    if not enrollment.has_access:
+        messages.error(request, "Доступ к курсу истёк или был отозван.")
         return redirect("courses:list")
 
     if not enrollment.user:
@@ -192,8 +234,9 @@ def activate_student_account(request, token):
             if not enrollment.activated_at:
                 enrollment.activated_at = timezone.now()
 
+            enrollment.invitation_used_at = timezone.now()
             enrollment.last_access_at = timezone.now()
-            enrollment.save(update_fields=["activated_at", "last_access_at"])
+            enrollment.save(update_fields=["activated_at", "invitation_used_at", "last_access_at"])
 
             login(request, enrollment.user)
 
@@ -225,16 +268,13 @@ def my_courses(request):
 
 @login_required
 def student_course(request, slug):
-    enrollment = get_object_or_404(
-        CourseEnrollment.objects.select_related("course"),
-        user=request.user,
-        course__slug=slug,
-        is_active=True,
-    )
+    access = resolve_course_access(request.user, slug)
 
-    if enrollment.is_expired:
-        messages.error(request, "Срок доступа к курсу истёк.")
+    if not access.allowed:
+        messages.error(request, access.message)
         return redirect("courses:my_courses")
+
+    enrollment = access.enrollment
 
     enrollment.last_access_at = timezone.now()
     enrollment.save(update_fields=["last_access_at"])
@@ -242,6 +282,7 @@ def student_course(request, slug):
     lessons = list(
         enrollment.course.lessons
         .filter(is_published=True)
+        .prefetch_related(Prefetch("materials", queryset=LessonMaterial.objects.filter(is_published=True), to_attr="published_materials"))
         .order_by("sort_order", "id")
     )
 
@@ -270,6 +311,7 @@ def student_course(request, slug):
         "course": enrollment.course,
         "enrollment": enrollment,
         "lesson_rows": lesson_rows,
+        "course_materials": enrollment.course.materials.filter(is_published=True),
         "progress_percent": enrollment.progress_percent(),
     })
 
@@ -277,12 +319,13 @@ def student_course(request, slug):
 @login_required
 @require_POST
 def mark_lesson_complete(request, slug, lesson_id):
-    enrollment = get_object_or_404(
-        CourseEnrollment,
-        user=request.user,
-        course__slug=slug,
-        is_active=True,
-    )
+    access = resolve_course_access(request.user, slug)
+
+    if not access.allowed:
+        messages.error(request, access.message)
+        return redirect("courses:my_courses")
+
+    enrollment = access.enrollment
     lesson = get_object_or_404(
         Lesson,
         id=lesson_id,
@@ -331,12 +374,13 @@ def teacher_detail(request, slug):
 
 @login_required
 def my_course_teachers(request, slug):
-    enrollment = get_object_or_404(
-        CourseEnrollment.objects.select_related("course"),
-        user=request.user,
-        course__slug=slug,
-        is_active=True,
-    )
+    access = resolve_course_access(request.user, slug)
+
+    if not access.allowed:
+        messages.error(request, access.message)
+        return redirect("courses:my_courses")
+
+    enrollment = access.enrollment
 
     assignments = (
         TeacherAssignment.objects
@@ -374,12 +418,13 @@ def my_course_teachers(request, slug):
 @login_required
 @require_POST
 def request_teacher(request, slug):
-    enrollment = get_object_or_404(
-        CourseEnrollment.objects.select_related("course"),
-        user=request.user,
-        course__slug=slug,
-        is_active=True,
-    )
+    access = resolve_course_access(request.user, slug)
+
+    if not access.allowed:
+        messages.error(request, access.message)
+        return redirect("courses:my_courses")
+
+    enrollment = access.enrollment
 
     form = TeacherRequestForm(request.POST, enrollment=enrollment)
 

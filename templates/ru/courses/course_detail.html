@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ course.title }}{% endblock %}
+{% block description %}{{ course.short_description }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="course-detail-page">
+  <div class="container">
+    <a class="back-link course-back" href="/courses/">← Все курсы</a>
+
+    <div class="course-detail-layout">
+      <article class="course-main">
+        <div class="course-badges">
+          <span>{{ course.get_level_display }}</span>
+          <span>{{ course.get_format_display }}</span>
+          {% if course.duration %}
+            <span>{{ course.duration }}</span>
+          {% endif %}
+          {% if course.price %}
+            <span>{{ course.price }}</span>
+          {% endif %}
+        </div>
+
+        {% if course.cover_url %}<img class="course-cover" src="{{ course.cover_url }}" alt="{{ course.title }}" loading="lazy">{% endif %}
+<h1>{{ course.title }}</h1>
+        <p class="course-lead">{{ course.short_description }}</p>
+
+        <div class="course-description">
+          {{ course.description|linebreaks }}
+        </div>
+
+        <section class="lessons-section">
+          <div class="section-head">
+            <p class="section-kicker">Программа курса</p>
+            <h2>Программа курса</h2>
+          </div>
+
+          {% if lessons %}
+            <div class="lesson-list">
+              {% for lesson in lessons %}
+                <article class="lesson-card">
+                  <span class="lesson-number">{{ forloop.counter|stringformat:"02d" }}</span>
+                  <div>
+                    <h3>{{ lesson.title }}</h3>
+                    {% if lesson.short_description %}
+                      <p>{{ lesson.short_description }}</p>
+                    {% endif %}
+                    {% if lesson.online_meeting_url %}
+                      <small>Онлайн-комната будет доступна ученику после записи.</small>
+                    {% endif %}
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="muted-text">Программа курса скоро будет добавлена.</p>
+          {% endif %}
+        </section>
+      </article>
+
+      <aside class="course-sidebar" id="apply">
+        <div class="apply-card">
+          <p class="section-kicker">Начать обучение</p>
+          <h2>Записаться на курс</h2>
+          <p>
+            Оставьте заявку — преподаватель свяжется с вами, уточнит уровень
+            и предложит удобный формат занятия.
+          </p>
+
+          <form method="post" action="{% url 'courses:apply' course.slug %}" class="course-form">
+            {% csrf_token %}
+
+            {% for hidden in form.hidden_fields %}
+              {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+              <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {% if field.errors %}
+                  <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+              </label>
+            {% endfor %}
+
+            <button class="course-submit" type="submit">
+              Отправить заявку
+            </button>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

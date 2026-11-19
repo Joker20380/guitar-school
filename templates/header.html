@@ -1,36 +1,57 @@
+{% load i18n static %}
 <header class="site-header">
   <div class="container header-inner">
-    <a class="site-logo" href="/" aria-label="Guitar School">
-      <span class="site-logo-mark">G</span>
-      <span class="site-logo-text">Guitar<br>School</span>
+    <a class="site-logo" href="/" aria-label="Phoenix Song — Home">
+      <img class="site-logo-emblem" src="{% static 'images/branding/phoenix-emblem-60.webp' %}"
+           srcset="{% static 'images/branding/phoenix-emblem-120.webp' %} 2x, {% static 'images/branding/phoenix-emblem-180.webp' %} 3x"
+           width="60" height="72" alt="" decoding="async">
+      <span class="site-logo-text">Phoenix<br>Song</span>
     </a>
 
-    <nav class="site-nav" aria-label="Главное меню">
+    <nav class="site-nav" aria-label="Main navigation">
       <ul class="site-nav-list">
-        <li><a href="/">Главная</a></li>
-        <li><a href="/tuner/">Тюнер</a></li>
-
+        <li><a href="/">Home</a></li>
         <li class="nav-dropdown">
           <button type="button" class="nav-dropdown-toggle">
-            Обучение
+            Learn
           </button>
 
           <div class="nav-dropdown-menu">
-            <a href="/courses/">Курсы</a>
-            <a href="/courses/teachers/">Преподаватели</a>
-            <a href="/courses/my/">Личный кабинет</a>
+            <a href="/courses/teachers/">Teachers</a>
+            <a href="/courses/my/">Student area</a>
           </div>
         </li>
 
-        <li><a href="/contacts/">Контакты</a></li>
+        <li><a href="/journal/">Journal</a></li>
+        <li><a href="/contacts/">Contact</a></li>
       </ul>
     </nav>
 
+    {% get_current_language as CURRENT_LANGUAGE %}
+    {% get_language_info for CURRENT_LANGUAGE as CURRENT_LANGUAGE_INFO %}
+    {% get_available_languages as AVAILABLE_LANGUAGES %}
+    <form class="language-switch" action="/i18n/setlang/" method="post">
+      {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path }}">
+      <details class="language-menu">
+        <summary aria-label="Language">
+          <span class="language-select-icon" aria-hidden="true">◎</span>
+          <span>{{ CURRENT_LANGUAGE_INFO.name_local }}</span>
+          <span class="language-select-chevron" aria-hidden="true"></span>
+        </summary>
+        <div class="language-menu-list">
+          {% for code, name in AVAILABLE_LANGUAGES %}
+            <button type="submit" name="language" value="{{ code }}"{% if code == CURRENT_LANGUAGE %} class="is-active" aria-current="true"{% endif %}>{{ name }}</button>
+          {% endfor %}
+        </div>
+      </details>
+    </form>
+
     <a class="header-cta" href="/contacts/#contact-form">
-      Записаться
+      Book a lesson
     </a>
 
-    <button class="mobile-nav-toggle" type="button" aria-label="Открыть меню" data-mobile-menu-toggle>
+    <button class="mobile-nav-toggle" type="button" aria-label="Open menu" data-mobile-menu-toggle>
       <span></span>
       <span></span>
       <span></span>
@@ -38,17 +59,15 @@
   </div>
 
   <div class="mobile-nav-panel" data-mobile-menu>
-    <a href="/">Главная</a>
-    <a href="/tuner/">Тюнер</a>
-
+    <a href="/">Home</a>
     <div class="mobile-nav-group">
-      <span>Обучение</span>
-      <a href="/courses/">Курсы</a>
-      <a href="/courses/teachers/">Преподаватели</a>
-      <a href="/courses/my/">Личный кабинет</a>
+      <span>Learn</span>
+      <a href="/courses/teachers/">Teachers</a>
+      <a href="/courses/my/">Student area</a>
     </div>
 
-    <a href="/contacts/">Контакты</a>
-    <a class="mobile-nav-cta" href="/contacts/#contact-form">Записаться</a>
+    <a href="/journal/">Journal</a>
+    <a href="/contacts/">Contact</a>
+    <a class="mobile-nav-cta" href="/contacts/#contact-form">Book a lesson</a>
   </div>
 </header>

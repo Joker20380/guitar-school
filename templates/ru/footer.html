@@ -1,0 +1,27 @@
+{% load static %}
+<footer class="site-footer" id="contact">
+  <section class="footer-cta"><div class="container"><div class="footer-cta-inner reveal">
+    <h2>Первый урок — бесплатно</h2><p>Хотите попробовать русский через музыку или просто научиться играть на гитаре? Познакомьтесь с преподавателем на индивидуальном онлайн-уроке.</p>
+    <div class="footer-actions">
+      <a class="btn btn-primary" href="/contacts/#contact-form">Записаться на первый урок бесплатно</a>
+      <a class="btn btn-outline" href="/tuner/">Тюнер для гитары</a>
+    </div>
+  </div></div></section>
+  <div class="footer-links"><div class="container">
+    <a class="footer-brand" href="/" aria-label="Песня Феникса — Главная">
+      <img src="{% static 'images/branding/phoenix-emblem-220.webp' %}"
+           srcset="{% static 'images/branding/phoenix-emblem-440.webp' %} 2x"
+           width="220" height="267" alt="Песня Феникса" loading="lazy" decoding="async">
+    </a>
+    <nav aria-label="Навигация в подвале"><a href="/">Главная</a><a href="/courses/teachers/">Преподаватели</a><a href="/journal/">Музыкальный журнал</a><a href="/contacts/">Контакты</a></nav>
+    <div class="footer-socials" aria-label="Контакты и социальные сети">
+      <a href="tel:+79161712233" aria-label="Позвонить +7 916 171 2233" title="Телефон">☎</a>
+      <a href="https://t.me/elya_pokrovskaya" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram">➤</a>
+      <a href="https://wa.me/79161712233" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">◉</a>
+      <span class="footer-phone">+7 916 171 2233</span>
+    </div>
+  </div></div>
+  <div class="footer-bottom"><div class="container footer-bottom-inner">
+    <span>© {% now "Y" %} Phoenix Song</span><span>Гитара · Музыка · Русский через песни</span>
+  </div></div>
+</footer>

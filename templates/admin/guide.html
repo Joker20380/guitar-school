@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'courses/css/admin-guide.css' %}">
+{% endblock %}
+{% block bodyclass %}{{ block.super }} admin-guide-page{% endblock %}
+{% block content %}
+<div class="guide-actions d-flex justify-content-end mb-3">
+<button type="button" class="btn btn-outline-primary" onclick="window.print()">Печать / сохранить PDF</button>
+</div>
+<article class="admin-guide card card-body" lang="ru" aria-label="Инструкция администратора">{{ guide_body }}</article>
+{% endblock %}

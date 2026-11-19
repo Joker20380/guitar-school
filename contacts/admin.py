@@ -7,6 +7,7 @@ from .models import ContactMessage
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = (
         "name",
+        "direction",
         "preferred_contact",
         "email",
         "phone",
@@ -15,15 +16,17 @@ class ContactMessageAdmin(admin.ModelAdmin):
         "status",
         "created_at",
     )
-    list_filter = ("status", "preferred_contact", "created_at")
-    search_fields = ("name", "email", "phone", "telegram", "subject", "message")
-    readonly_fields = ("created_at", "updated_at", "ip_address", "user_agent")
+    list_filter = ("status", "direction", "preferred_contact", "created_at")
+    search_fields = ("name", "email", "phone", "telegram", "other_contact", "subject", "message")
+    readonly_fields = ("created_at", "updated_at", "ip_address", "user_agent", "submission_key", "email_notification_status", "telegram_notification_status")
     fields = (
         "status",
         "name",
+        "direction",
         "email",
         "phone",
         "telegram",
+        "other_contact",
         "preferred_contact",
         "subject",
         "message",
@@ -31,4 +34,7 @@ class ContactMessageAdmin(admin.ModelAdmin):
         "user_agent",
         "created_at",
         "updated_at",
+        "submission_key",
+        "email_notification_status",
+        "telegram_notification_status",
     )

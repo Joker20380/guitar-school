@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% load copy %}
+{% block title %}{% b 'Request received | Phoenix Song' 'Заявка принята | Phoenix Song' %}{% endblock %}
+{% block content %}<section class="section"><div class="container narrow success-card" role="status">
+<span class="section-kicker">Phoenix Song</span><h1>{% b 'Thank you. Your request is saved.' 'Спасибо! Заявка сохранена.' %}</h1>
+<p>{% b 'We will contact you to discuss the details of your free first lesson.' 'Мы свяжемся с тобой, чтобы обсудить детали первого бесплатного урока.' %}</p>
+<a href="/" class="btn btn-primary">{% b 'Back to home' 'На главную' %}</a>
+</div></section>{% endblock %}

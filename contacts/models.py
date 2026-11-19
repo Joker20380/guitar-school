@@ -18,12 +18,28 @@ class ContactMessage(models.Model):
     CONTACT_EMAIL = "email"
     CONTACT_PHONE = "phone"
     CONTACT_TELEGRAM = "telegram"
+    CONTACT_WHATSAPP = "whatsapp"
+    CONTACT_OTHER = "other"
 
     CONTACT_CHOICES = [
         (CONTACT_EMAIL, bt("Email", "Электронная почта")),
         (CONTACT_PHONE, bt("Phone", "Телефон")),
         (CONTACT_TELEGRAM, bt("Telegram", "Телеграм")),
+        (CONTACT_WHATSAPP, "WhatsApp"),
+        (CONTACT_OTHER, bt("Another way", "Другой способ")),
     ]
+
+    DIRECTION_CHOICES = [
+        ("russian", bt("Russian through music", "Русский язык через музыку")),
+        ("guitar", bt("Guitar and musical creativity", "Гитара и музыкальное творчество")),
+        ("undecided", bt("I haven't decided yet", "Пока не определился / определилась")),
+    ]
+    direction = models.CharField("Направление", max_length=20, choices=DIRECTION_CHOICES, blank=True)
+    other_contact = models.CharField("Другой контакт", max_length=200, blank=True)
+    submission_key = models.UUIDField("Ключ отправки", null=True, blank=True, unique=True, editable=False)
+    NOTIFICATION_CHOICES = [("disabled", "Отключено"), ("accepted", "Принято сервисом, доставка не подтверждена"), ("failed", "Ошибка")]
+    email_notification_status = models.CharField("Email уведомление", max_length=12, default="disabled", choices=NOTIFICATION_CHOICES)
+    telegram_notification_status = models.CharField("Telegram уведомление", max_length=12, default="disabled", choices=NOTIFICATION_CHOICES)
 
     name = models.CharField("Имя", max_length=120)
     email = models.EmailField("Email", blank=True)

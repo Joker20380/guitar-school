@@ -85,6 +85,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.template.context_processors.i18n',
+                'config.context.public_contacts',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -247,6 +248,9 @@ CONTACT_WHATSAPP = env("CONTACT_WHATSAPP", default="")
 CONTACT_ADDRESS = env("CONTACT_ADDRESS", default="Ghent / online")
 CONTACT_WORKING_HOURS = env("CONTACT_WORKING_HOURS", default="By appointment")
 CONTACT_NOTIFY_EMAIL = env("CONTACT_NOTIFY_EMAIL", default="")
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_NOTIFY_CHAT_ID = env("TELEGRAM_NOTIFY_CHAT_ID", "")
+PASSWORD_RESET_TIMEOUT = 3600
 
 
 # Administration follows the Phoenix Songs public site's visual identity.
@@ -265,6 +269,7 @@ JAZZMIN_SETTINGS = {
     "use_google_fonts_cdn": False,
     "show_ui_builder": False,
     "changeform_format": "single",
+    "changeform_format_overrides": {"journal.article": "horizontal_tabs"},
     "related_modal_active": False,
     "search_model": "courses.Course",
     "order_with_respect_to": [

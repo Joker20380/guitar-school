@@ -6,3 +6,15 @@ staticfiles
 media
 .venv
 venv
+.preview
+private_media
+test-results
+playwright-report
+node_modules
+docs/phoenix-song/screenshots
+*.sqlite3
+*.sqlite3-*
+*.db
+*.bak
+.env.*
+!.env.example

@@ -1,0 +1,22 @@
+{
+  "engine": "system Chromium via Playwright",
+  "base": "http://127.0.0.1:8008",
+  "checks": [
+    "Fresh RU browser starts EN; explicit RU/EN choice persists",
+    "en 390px: nine public pages, login, dashboard, protected lesson, review form",
+    "en 1440px: nine public pages, login, dashboard, protected lesson, review form",
+    "ru 390px: nine public pages, login, dashboard, protected lesson, review form",
+    "ru 1440px: nine public pages, login, dashboard, protected lesson, review form",
+    "en 320px: keyboard, menu, reduced motion, both cards, reset, conditional fields, errors",
+    "en 768px: keyboard, menu, reduced motion, both cards, reset, conditional fields, errors",
+    "en 1024px: keyboard, menu, reduced motion, both cards, reset, conditional fields, errors",
+    "ru 320px: keyboard, menu, reduced motion, both cards, reset, conditional fields, errors",
+    "ru 768px: keyboard, menu, reduced motion, both cards, reset, conditional fields, errors",
+    "ru 1024px: keyboard, menu, reduced motion, both cards, reset, conditional fields, errors",
+    "503 and lost response retain input; retry/double click create one row; browser admin matches saved values"
+  ],
+  "javascript_errors": [],
+  "external_network_delivery": "not tested",
+  "microphone": "not tested",
+  "geographic_access": "not tested"
+}

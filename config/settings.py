@@ -253,16 +253,15 @@ TELEGRAM_NOTIFY_CHAT_ID = env("TELEGRAM_NOTIFY_CHAT_ID", "")
 PASSWORD_RESET_TIMEOUT = 3600
 
 
-# Administration follows the Phoenix Songs public site's visual identity.
 JAZZMIN_SETTINGS = {
-    "site_title": "Phoenix Songs — администрирование",
-    "site_header": "Phoenix Songs",
-    "site_brand": "Phoenix Songs",
+    "site_title": "Phoenix Song — администрирование",
+    "site_header": "Phoenix Song",
+    "site_brand": "Phoenix Song",
     "site_logo": "images/phoenix-admin-mark.svg",
     "site_icon": "images/phoenix-admin-mark.svg",
     "site_logo_classes": "",
     "welcome_sign": "Управление гитарной школой",
-    "copyright": "Phoenix Songs",
+    "copyright": "Phoenix Song",
     "show_sidebar": True,
     "navigation_expanded": False,
     "show_theme_chooser": True,

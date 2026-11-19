@@ -48,22 +48,25 @@ p { margin-bottom:1.2em; }
 .mobile-nav a { padding:8px 12px; }
 .hero { position:relative; background:linear-gradient(90deg,#100f0e 1%,rgba(16,15,14,.9) 28%,rgba(16,15,14,.2) 67%),url('/static/images/guitar-school-banner.webp') right center/cover no-repeat; border-bottom:1px solid var(--line); }
 .hero-inner { position:relative; padding-block:90px 76px; min-height:650px; }
-.hero-copy { max-width:570px; }
+.hero-copy { max-width:620px; }
 .hero h1 { margin-bottom:26px; }
 .hero h1 em { color:var(--gold); font-style:italic; }
-.hero-lead { max-width:480px; font-size:17px; color:#ded5c8; }
+.hero-lead { max-width:540px; font-size:17px; }
 .hero-caption { position:absolute; right:0; bottom:30px; color:#d2bc97; font-size:11px; letter-spacing:.12em; }
 .cta-stack { display:flex; flex-direction:column; align-items:stretch; width:288px; max-width:100%; gap:12px; margin-top:30px; }
-.free-note { color:var(--muted); font-size:12px; margin:0; text-align:center; }
+.free-note { color:var(--gold); font-size:12px; margin:0; text-align:center; }
 .free-note span { color:var(--gold); margin-right:5px; }
 .section-heading { max-width:720px; margin-bottom:44px; }
-.section-heading p,.story-copy p,.community p,.final-cta p,.form-intro p { color:var(--muted); }
+.body-copy,.form-intro>p:not(.free-note) { color:var(--muted); }
+.body-copy { max-width:68ch; }
+.body-copy p:last-child { margin-bottom:0; }
+.hero-lead { color:#ded5c8; }
 .direction-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:26px; }
 .direction-card { display:flex; flex-direction:column; padding:40px; border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(135deg,#221e18,#161513); }
 .direction-card h3 { max-width:370px; font-family:Georgia,serif; font-size:32px; }
-.direction-card>p:not(.section-kicker) { color:var(--muted); }
+.direction-card .direction-subtitle { color:var(--gold); font-size:18px; margin-bottom:28px; }
+.direction-card .body-copy { margin-bottom:24px; }
 .direction-symbol { color:var(--gold); font:26px/1.3 Georgia,serif; width:fit-content; margin-bottom:28px; }
-.direction-card .section-kicker { font-size:10px; margin-bottom:14px; }
 .card-action { margin-top:auto; padding-top:16px; }
 .card-action .btn { width:100%; }
 .card-action .free-note { margin-top:12px; }
@@ -77,6 +80,7 @@ p { margin-bottom:1.2em; }
 .story-copy .story-signature { font:italic 27px Georgia,serif; color:var(--gold); }
 .community { text-align:center; background:radial-gradient(ellipse at center,#292117 0,transparent 70%); }
 .community h2 { max-width:670px; margin-inline:auto; }
+.community .body-copy,.final-cta .body-copy { margin-inline:auto; }
 .community p { max-width:650px; margin-inline:auto; }
 .text-link { color:var(--gold); text-decoration:underline; text-underline-offset:6px; font-size:14px; }
 .final-cta { border-top:1px solid var(--line); text-align:center; background:#1a1713; }

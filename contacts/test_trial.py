@@ -44,7 +44,7 @@ class TrialTests(TestCase):
     def test_saved_data_visible_in_admin(self):
         data = self.payload(preferred_contact="other", direction="undecided", other_contact="reply@example.com")
         response = self.client.post(reverse("contacts:trial"), data, follow=True)
-        self.assertContains(response, "Your request is saved")
+        self.assertContains(response, "Thank you for your request!")
         entry = ContactMessage.objects.get()
         for field in ["name", "direction", "preferred_contact", "other_contact"]:
             self.assertEqual(getattr(entry, field), data[field])
@@ -72,13 +72,26 @@ class TrialTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.context["form"].errors)
             self.assertFalse(ContactMessage.objects.exists())
-            self.assertNotContains(response, "Your request is saved")
+            self.assertNotContains(response, "Thank you for your request!")
         data = self.payload()
         with patch("contacts.trial.ContactMessage.objects.get_or_create", side_effect=DatabaseError("local failure")):
             response = self.client.post(reverse("contacts:trial"), data)
         self.assertContains(response, "could not save")
         self.assertContains(response, data["name"])
         self.assertFalse(ContactMessage.objects.exists())
+
+    def test_valid_replay_returns_original_result_without_editing_the_request(self):
+        data = self.payload(preferred_contact="telegram", telegram="@first_student")
+        headers = {"HTTP_X_REQUESTED_WITH": "XMLHttpRequest"}
+        first = self.client.post(reverse("contacts:trial"), data, **headers)
+        original = ContactMessage.objects.values().get()
+        replay = self.client.post(reverse("contacts:trial"), {
+            **data, "name": "José", "direction": "russian", "phone": "+33142345678",
+            "preferred_contact": "other", "other_contact": "different@example.com",
+        }, **headers)
+        self.assertEqual(replay.json(), first.json())
+        self.assertEqual(ContactMessage.objects.count(), 1)
+        self.assertEqual(ContactMessage.objects.values().get(), original)
 
     @override_settings(CONTACT_NOTIFY_EMAIL="admin@example.com", TELEGRAM_BOT_TOKEN="local-test-token", TELEGRAM_NOTIFY_CHAT_ID="test-recipient")
     def test_failed_notifications_do_not_undo_request_or_claim_delivery(self):

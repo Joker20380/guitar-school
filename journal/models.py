@@ -25,15 +25,15 @@ class Article(models.Model):
     photo_url = models.URLField("Ссылка на фото", max_length=500, blank=True)
     photo_file = models.ImageField("Загрузить фото", upload_to="journal/", blank=True)
     video_url = models.URLField("Видео (необязательно)", max_length=1000, blank=True, validators=[validate_video_url])
-    is_published = models.BooleanField("Показывать в журнале", default=False)
+    is_published = models.BooleanField("Показывать в блоге", default=False)
     published_at = models.DateTimeField("Дата публикации", null=True, blank=True)
     created_at = models.DateTimeField("Создана", auto_now_add=True)
     updated_at = models.DateTimeField("Обновлена", auto_now=True)
 
     class Meta:
         ordering = ["-published_at", "-created_at"]
-        verbose_name = "Статья журнала"
-        verbose_name_plural = "Статьи журнала"
+        verbose_name = "Статья блога"
+        verbose_name_plural = "Статьи блога"
 
     def __str__(self):
         return self.title

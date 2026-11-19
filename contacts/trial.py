@@ -31,7 +31,7 @@ def saved_response(request):
 
 class TrialForm(forms.ModelForm):
     direction = forms.ChoiceField(label=bt("Direction", "Направление"), choices=[("", bt("Choose a direction", "Выберите направление"))] + ContactMessage.DIRECTION_CHOICES)
-    phone = PhoneNumberField(region=None, label=bt("Phone with country code", "Телефон с кодом страны"), widget=forms.TextInput(attrs={"type": "tel", "autocomplete": "tel", "placeholder": "+44 20 7946 0958", "maxlength": 40}))
+    phone = PhoneNumberField(region=None, label=bt("Phone with country code", "Телефон с кодом страны"), widget=forms.TextInput(attrs={"type": "tel", "autocomplete": "tel", "placeholder": "+44 20 7946 0958", "maxlength": 40, "aria-describedby": "phone-help"}))
     preferred_contact = forms.ChoiceField(required=False, initial="whatsapp", label=bt("Preferred contact", "Удобный способ связи"), choices=[("whatsapp", "WhatsApp"), ("telegram", "Telegram"), ("other", bt("Another way", "Другой способ"))])
     submission_token = forms.CharField(widget=forms.HiddenInput)
     website = forms.CharField(required=False, widget=forms.HiddenInput)
@@ -39,8 +39,8 @@ class TrialForm(forms.ModelForm):
     class Meta:
         model = ContactMessage
         fields = ["name", "direction", "phone", "preferred_contact", "telegram", "other_contact"]
-        labels = {"name": bt("Name", "Имя"), "telegram": bt("Telegram username (optional)", "Ник в Telegram (необязательно)"), "other_contact": bt("Contact details (optional)", "Другой контакт (необязательно)")}
-        widgets = {"name": forms.TextInput(attrs={"autocomplete": "name"}), "telegram": forms.TextInput(attrs={"placeholder": "@username"})}
+        labels = {"name": bt("Name", "Имя"), "telegram": bt("Telegram username (optional)", "Ник в Telegram (необязательно)"), "other_contact": bt("Tell us how you'd prefer to be contacted", "Укажи удобный способ связи")}
+        widgets = {"name": forms.TextInput(attrs={"autocomplete": "name"}), "telegram": forms.TextInput(attrs={"placeholder": "@username"}), "other_contact": forms.TextInput(attrs={"aria-describedby": "other-contact-help"})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

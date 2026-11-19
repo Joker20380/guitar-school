@@ -12,8 +12,6 @@
   };
   channel.addEventListener('change', updateFields);
   updateFields();
-  const phone = form.querySelector('[name="phone"]');
-  phone.setAttribute('aria-describedby', [phone.getAttribute('aria-describedby'), 'phone-help'].filter(Boolean).join(' '));
   form.querySelectorAll('.field-errors').forEach(error => {
     const input = error.parentElement.querySelector('input, select');
     input.setAttribute('aria-invalid', 'true');

@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import argparse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
@@ -15,8 +16,12 @@ from playwright.sync_api import expect, sync_playwright
 from contacts.models import ContactMessage
 from contacts.trial import TOKEN_SALT
 
-BASE = "http://127.0.0.1:8008"
-OUTPUT = Path("docs/phoenix-song/screenshots")
+parser = argparse.ArgumentParser()
+parser.add_argument("--base-url", default="http://127.0.0.1:8010")
+parser.add_argument("--output", default="docs/phoenix-song/full-copy-review")
+args = parser.parse_args()
+BASE = args.base_url
+OUTPUT = Path(args.output)
 OUTPUT.mkdir(parents=True, exist_ok=True)
 CREDENTIALS = json.loads(Path(".preview/access.json").read_text())
 results = []
@@ -105,7 +110,7 @@ with sync_playwright() as playwright:
                 if route == "/":
                     assert page.locator(".direction-card").count() == 2
                     sections = page.locator("main>section").evaluate_all("items => items.map(item => item.id)")
-                    assert sections == ["welcome", "directions", "story", "community", "start"], sections
+                    assert sections in (["welcome", "directions", "story", "community", "start"], ["welcome", "directions", "story", "community", "reviews", "start"]), sections
                     for group in page.locator(".cta-stack").all():
                         buttons = group.locator(".btn").all()
                         first, second = [button.bounding_box() for button in buttons]
@@ -158,6 +163,11 @@ with sync_playwright() as playwright:
             layout(page, (language, width, "open menu"))
             if language == "ru" and width == 320:
                 screenshot(page, "final-menu-ru-320.png")
+            page.locator('#mobile-menu a[href="/contacts/trial/"]').click()
+            expect(page.locator("#id_direction")).to_have_value("")
+            navigate(page, "/")
+            toggle.focus()
+            page.keyboard.press("Enter")
             page.keyboard.press("Escape")
             expect(page.locator("#mobile-menu")).to_be_hidden()
             assert toggle.evaluate("element => element === document.activeElement")
@@ -227,13 +237,20 @@ with sync_playwright() as playwright:
     expect(page.locator("#id_direction")).to_have_value("undecided")
     expect(page.locator("#id_phone")).to_have_value("+442079460958")
     expect(page.locator("#id_preferred_contact")).to_have_value("whatsapp")
+    expect(page.locator("#id_message")).to_have_value("")
+    page.locator("#id_status").select_option("replied")
+    page.locator('[name="_save"]').click()
+    page.wait_for_url("**/admin/contacts/contactmessage/")
+    navigate(page, f"/admin/contacts/contactmessage/{entry['pk']}/change/")
+    expect(page.locator("#id_status")).to_have_value("replied")
+    expect(page.locator("#id_message")).to_have_value("")
     navigate(page, "/admin/help/")
     expect(page.locator("h1").filter(has_text="Phoenix Song: работа с сайтом")).to_be_visible()
-    record("503 and lost response retain input; retry/double click create one row; browser admin matches saved values")
+    record("503 and lost response retain input; retry/double click create one row; browser admin POST persists replied without a message")
     context.close()
     assert not errors, errors
     browser.close()
 
 report = {"engine": "system Chromium via Playwright", "base": BASE, "checks": results, "javascript_errors": errors, "external_network_delivery": "not tested", "microphone": "not tested", "geographic_access": "not tested"}
-Path("docs/phoenix-song/browser-checks.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+(OUTPUT / "browser-checks.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
 print("PASS browser matrix complete", flush=True)

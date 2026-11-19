@@ -13,6 +13,7 @@ test-results
 playwright-report
 node_modules
 docs/phoenix-song/screenshots
+docs/phoenix-song/full-copy-review
 *.sqlite3
 *.sqlite3-*
 *.db

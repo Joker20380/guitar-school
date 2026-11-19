@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-11-19T16:12:11.748136+00:00",
+  "url": "https://phoenix-song.com",
+  "source_sha": "6cb16873d59d4f1a44c5cf2f304cdb02be080087",
+  "checks": [
+    "New RU browser starts EN; explicit RU choice persists",
+    "en/390: 9 pages HTTP200, layout/images, vertical CTA, no email field",
+    "en/1440: 9 pages HTTP200, layout/images, vertical CTA, no email field",
+    "ru/390: 9 pages HTTP200, layout/images, vertical CTA, no email field",
+    "ru/1440: 9 pages HTTP200, layout/images, vertical CTA, no email field",
+    "en/320: home/contacts/form no overflow",
+    "ru/320: home/contacts/form no overflow",
+    "en/768: home/contacts/form no overflow",
+    "ru/768: home/contacts/form no overflow",
+    "en/1024: home/contacts/form no overflow",
+    "ru/1024: home/contacts/form no overflow",
+    "en: existing public article renders on mobile",
+    "en: mobile keyboard/Escape/focus; 6 CTA direction/reset; contact switching; protected routes redirect",
+    "ru: existing public article renders on mobile",
+    "ru: mobile keyboard/Escape/focus; 6 CTA direction/reset; contact switching; protected routes redirect"
+  ],
+  "js_errors": [],
+  "limits": [
+    "No real production form submission, email or Telegram message",
+    "No real student/admin login",
+    "One local client network; not a Russia/multi-country availability test",
+    "Actual microphone not tested"
+  ]
+}

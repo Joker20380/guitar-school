@@ -8,6 +8,7 @@ media
 venv
 .preview
 private_media
+backups
 test-results
 playwright-report
 node_modules

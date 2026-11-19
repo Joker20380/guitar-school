@@ -49,6 +49,8 @@ with sync_playwright() as playwright:
             assert fallback.status == 200 and fallback.headers["content-type"].startswith("image/")
             results.append({"width": width, "language": language, "nested_grid_containment": "PASS", "reference_switch": "PASS", "tempo_controls": "PASS", "favicon": "PASS"})
             if width in [390, 1440]:
+                page.evaluate("scrollTo({top: 0, behavior: 'instant'})")
+                page.wait_for_timeout(150)
                 page.screenshot(path=str(options.output / f"tuner-{language}-{width}.png"), full_page=True)
         context.close()
     browser.close()

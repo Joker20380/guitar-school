@@ -25,5 +25,15 @@
     "No real student/admin login",
     "One local client network; not a Russia/multi-country availability test",
     "Actual microphone not tested"
-  ]
+  ],
+  "tuner_favicon_follow_up": {
+    "source_sha": "30a4fc6644f3c377095f0eaa5f1f85a2fcb49c44",
+    "published_at": "2026-11-19T16:39:25.693677+00:00",
+    "unchanged_database_tables": 24,
+    "published_reviews": 1,
+    "review_rendering": "One card on home and reviews page in both EN and RU",
+    "browser_checks": "15 size/language combinations; nested panel containment, 432/440, BPM, favicon asset and /favicon.ico",
+    "evidence": "screenshots/tuner-followup-20261119/tuner-layout.json",
+    "remaining_content_gap": "A1-A8 remain working copy, not the missing full author exact_copy; A9 is exact"
+  }
 }

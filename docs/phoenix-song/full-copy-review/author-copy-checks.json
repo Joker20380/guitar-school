@@ -1,0 +1,166 @@
+{
+  "base": "http://127.0.0.1:8010",
+  "results": [
+    {
+      "locale": "ru",
+      "width": 320,
+      "fields": 31,
+      "russian_exact_comparison": true,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "ru",
+      "width": 390,
+      "fields": 31,
+      "russian_exact_comparison": true,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "ru",
+      "width": 768,
+      "fields": 31,
+      "russian_exact_comparison": true,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "ru",
+      "width": 1024,
+      "fields": 31,
+      "russian_exact_comparison": true,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "ru",
+      "width": 1440,
+      "fields": 31,
+      "russian_exact_comparison": true,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "en",
+      "width": 320,
+      "fields": 31,
+      "russian_exact_comparison": false,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "en",
+      "width": 390,
+      "fields": 31,
+      "russian_exact_comparison": false,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "en",
+      "width": 768,
+      "fields": 31,
+      "russian_exact_comparison": false,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "en",
+      "width": 1024,
+      "fields": 31,
+      "russian_exact_comparison": false,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    },
+    {
+      "locale": "en",
+      "width": 1440,
+      "fields": 31,
+      "russian_exact_comparison": false,
+      "paragraph_counts": [
+        3,
+        1,
+        3,
+        5,
+        5,
+        2,
+        2
+      ],
+      "layout_and_form": "PASS"
+    }
+  ],
+  "javascript_errors": []
+}

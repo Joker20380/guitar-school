@@ -37,14 +37,14 @@ def send_contact_notification(contact_message):
         f"Сообщение:\n{contact_message.message}\n"
     )
 
-    send_mail(
+    sent = send_mail(
         subject=f"Сообщение с сайта: {contact_message.subject or contact_message.name}",
         message=body,
         from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
         recipient_list=[recipient],
         fail_silently=False,
     )
-    return True
+    return sent == 1
 
 
 def contact_page(request):

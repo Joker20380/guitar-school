@@ -1,5 +1,4 @@
 import re
-import unicodedata
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -7,6 +6,7 @@ from django.core.validators import validate_email
 from django.utils.html import strip_tags
 
 from config.i18n import bilingual as bt
+from config.validators import clean_person_name
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import ContactMessage
@@ -109,15 +109,7 @@ class ContactMessageForm(forms.ModelForm):
         return value
 
     def clean_name(self):
-        value = strip_tags(self.cleaned_data.get("name", "")).strip()
-        value = re.sub(r"\s+", " ", value)
-
-        if not (1 <= len(value) <= 120) or not any(c.isalpha() for c in value) or any(
-            not (c.isalpha() or unicodedata.category(c).startswith("M") or c in " '-’.") for c in value
-        ):
-            raise ValidationError(bt('Enter a valid name.', 'Введите корректное имя.'))
-
-        return value
+        return clean_person_name(self.cleaned_data.get("name", ""))
 
     def clean_email(self):
         value = self.cleaned_data.get("email", "").strip().lower()

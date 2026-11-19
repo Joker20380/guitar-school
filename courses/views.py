@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.db.models import Prefetch
+from django.db import transaction
 
 from .access import resolve_course_access
 from .forms import CourseRequestForm, TeacherRequestForm
@@ -49,7 +50,7 @@ def send_verification_email(request, course_request):
         "Если вы не отправляли заявку, просто проигнорируйте это письмо."
     )
 
-    send_mail(
+    sent = send_mail(
         subject=subject,
         message=message,
         from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "webmaster@localhost"),
@@ -57,8 +58,10 @@ def send_verification_email(request, course_request):
         fail_silently=False,
     )
 
-    course_request.verification_sent_at = timezone.now()
-    course_request.save(update_fields=["verification_sent_at"])
+    if sent == 1:
+        course_request.verification_sent_at = timezone.now()
+        course_request.save(update_fields=["verification_sent_at"])
+    return sent == 1
 
 
 def send_course_request_notification(course_request):
@@ -66,7 +69,7 @@ def send_course_request_notification(course_request):
     if not recipient:
         return False
 
-    send_mail(
+    sent = send_mail(
         subject=f"Новая заявка на курс: {course_request.course.title}",
         message=(
             "На сайте школы создана новая заявка.\n\n"
@@ -82,7 +85,7 @@ def send_course_request_notification(course_request):
         recipient_list=[recipient],
         fail_silently=False,
     )
-    return True
+    return sent == 1
 
 
 def course_list(request):
@@ -136,10 +139,11 @@ def course_apply(request, slug):
 
         if course_request.verification_channel == CourseRequest.VERIFY_EMAIL:
             try:
-                send_verification_email(request, course_request)
+                if not send_verification_email(request, course_request):
+                    raise RuntimeError("Email backend did not accept the message")
                 messages.success(
                     request,
-                    "Заявка создана. Мы отправили ссылку подтверждения на ваш email.",
+                    "Заявка создана. Почтовый сервис принял письмо подтверждения; доставка не подтверждена.",
                 )
             except Exception:
                 messages.warning(
@@ -203,9 +207,10 @@ def verify_course_request(request, token):
     return redirect(course_request.course.get_absolute_url())
 
 
+@transaction.atomic
 def activate_student_account(request, token):
     enrollment = get_object_or_404(
-        CourseEnrollment.objects.select_related("user", "course"),
+        CourseEnrollment.objects.select_for_update(of=("self",)).select_related("user", "course"),
         invitation_token=token,
     )
 

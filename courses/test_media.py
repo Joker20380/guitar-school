@@ -45,10 +45,7 @@ class MediaTests(TestCase):
         self.course_material = CourseMaterial.objects.create(course=self.course, title="Course handbook", file=upload("handbook.pdf"))
 
     def body(self, response):
-        try:
-            return b"".join(response.streaming_content) if response.streaming else response.content
-        finally:
-            response.close()
+        return b"".join(response.streaming_content) if response.streaming else response.content
 
     def test_files_are_stored_outside_public_media_and_download_with_original_name(self):
         self.assertTrue(Path(self.material.file.path).is_relative_to(self.paths / "private"))

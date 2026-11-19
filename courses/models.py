@@ -309,7 +309,7 @@ class CourseEnrollment(models.Model):
 
     @property
     def is_expired(self):
-        return bool(self.access_expires_at and self.access_expires_at < timezone.now())
+        return bool(self.access_expires_at and self.access_expires_at <= timezone.now())
 
     @property
     def has_access(self):
@@ -317,7 +317,7 @@ class CourseEnrollment(models.Model):
 
     @property
     def invitation_is_expired(self):
-        return bool(self.invitation_expires_at and self.invitation_expires_at < timezone.now())
+        return bool(self.invitation_expires_at and self.invitation_expires_at <= timezone.now())
 
     @property
     def can_activate_invitation(self):
@@ -329,7 +329,7 @@ class CourseEnrollment(models.Model):
         if not total:
             return 0
 
-        completed = self.lesson_progress.filter(is_completed=True).count()
+        completed = self.lesson_progress.filter(is_completed=True, lesson__is_published=True).count()
         return round(completed / total * 100)
 
 

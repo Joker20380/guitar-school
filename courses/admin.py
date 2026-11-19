@@ -113,7 +113,7 @@ class CourseRequestAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("status", "verification_channel", "is_verified", "course", "created_at")
-    search_fields = ("name", "phone", "email", "message")
+    search_fields = ("name", "phone", "email", "messenger", "message")
     readonly_fields = (
         "ip_address",
         "user_agent",
@@ -130,6 +130,7 @@ class CourseRequestAdmin(admin.ModelAdmin):
                 "name",
                 "phone",
                 "email",
+                "messenger",
                 "verification_channel",
                 "preferred_format",
                 "message",
@@ -195,6 +196,7 @@ class CourseRequestAdmin(admin.ModelAdmin):
                     "student_name": course_request.name,
                     "email": course_request.email,
                     "phone": course_request.phone,
+                    "messenger": course_request.messenger,
                     "is_active": True,
                     "access_expires_at": now + timedelta(days=access_days),
                 },
@@ -208,8 +210,9 @@ class CourseRequestAdmin(admin.ModelAdmin):
                 enrollment.course_request = course_request
 
             enrollment.student_name = course_request.name
-            enrollment.email = course_request.email
-            enrollment.phone = course_request.phone
+            enrollment.email = course_request.email or enrollment.email
+            enrollment.phone = course_request.phone or enrollment.phone
+            enrollment.messenger = course_request.messenger or enrollment.messenger
             enrollment.is_active = True
             enrollment.access_expires_at = now + timedelta(days=access_days)
             enrollment.invitation_token = generate_access_token()
@@ -223,7 +226,7 @@ class CourseRequestAdmin(admin.ModelAdmin):
             )
 
             try:
-                send_mail(
+                accepted = send_mail(
                     subject="Доступ к курсу гитары",
                     message=(
                         f"Здравствуйте, {course_request.name}!\n\n"
@@ -240,6 +243,10 @@ class CourseRequestAdmin(admin.ModelAdmin):
                 failed_count += 1
                 continue
 
+            if accepted != 1:
+                failed_count += 1
+                continue
+
             enrollment.invitation_sent_at = timezone.now()
             enrollment.save(update_fields=["invitation_sent_at"])
 
@@ -250,7 +257,7 @@ class CourseRequestAdmin(admin.ModelAdmin):
         self.message_user(
             request,
             (
-                f"Приглашения отправлены: {sent_count}. "
+                f"Почтовым сервисом приняты: {sent_count} (доставка не подтверждена). "
                 f"Не подтверждены: {skipped_unverified}. "
                 f"Без email: {skipped_without_email}. "
                 f"Уже активированы: {skipped_activated}. "

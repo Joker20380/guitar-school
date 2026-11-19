@@ -6,13 +6,13 @@ from django.core.validators import validate_email
 from django.utils.html import strip_tags
 
 from config.i18n import bilingual as bt
+from config.validators import clean_person_name
 from phonenumber_field.formfields import PhoneNumberField
 
 from .models import CourseRequest, Teacher, TeacherAssignment, TeacherRequest
 
 
 URL_RE = re.compile(r"https?://|www\.|\.ru|\.com|\.net|\.org", re.IGNORECASE)
-NAME_RE = re.compile(r"^[A-Za-zА-Яа-яЁёІіЇїЄє'\-\s]{2,80}$")
 MESSENGER_RE = re.compile(r"^@?[A-Za-z0-9_][A-Za-z0-9_.\-]{2,78}$")
 
 
@@ -93,16 +93,7 @@ class CourseRequestForm(forms.ModelForm):
         return value
 
     def clean_name(self):
-        value = strip_tags(self.cleaned_data.get("name", "")).strip()
-        value = re.sub(r"\s+", " ", value)
-
-        if not NAME_RE.match(value):
-            raise ValidationError(bt('Enter a valid name.', 'Введите корректное имя.'))
-
-        if URL_RE.search(value):
-            raise ValidationError(bt('The name must not contain links.', 'Имя не должно содержать ссылки.'))
-
-        return value
+        return clean_person_name(self.cleaned_data.get("name", ""))
 
     def clean_messenger(self):
         value = strip_tags(self.cleaned_data.get("messenger", "")).strip()

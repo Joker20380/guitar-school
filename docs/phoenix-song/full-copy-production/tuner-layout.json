@@ -1,0 +1,122 @@
+[
+  {
+    "width": 320,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 320,
+    "language": "ru",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 320,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 390,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 390,
+    "language": "ru",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 390,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 768,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 768,
+    "language": "ru",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 768,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 1024,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 1024,
+    "language": "ru",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 1024,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 1440,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 1440,
+    "language": "ru",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  },
+  {
+    "width": 1440,
+    "language": "en",
+    "nested_grid_containment": "PASS",
+    "reference_switch": "PASS",
+    "tempo_controls": "PASS",
+    "favicon": "PASS"
+  }
+]
